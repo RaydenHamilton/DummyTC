@@ -8,7 +8,7 @@ DamageDummy.__index = DamageDummy
 function DamageDummy.new()
 	local self = setmetatable({}, DamageDummy)
 
-    self stop = Observers.observeAttribute()
+    self stop = Observers.observeTag("")
 
 end
 

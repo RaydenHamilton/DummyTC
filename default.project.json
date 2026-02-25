@@ -2,24 +2,23 @@
   "name": "DummyTC",
   "tree": {
     "$className": "DataModel",
-
     "ReplicatedStorage": {
       "Shared": {
         "$path": "src/shared"
+      },
+      "Packages": {
+        "$path": "packages"
       }
     },
-
     "ServerScriptService": {
       "Server": {
         "$path": "src/server"
       }
     },
-
-      "ReplicatedFirst": {
-        "Client": {
-          "$path": "src/client"
-        }
+    "ReplicatedFirst": {
+      "Client": {
+        "$path": "src/client"
       }
-
+    }
   }
-  }
+}

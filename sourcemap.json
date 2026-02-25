@@ -23,6 +23,33 @@
       "className": "ReplicatedStorage",
       "children": [
         {
+          "name": "Packages",
+          "className": "Folder",
+          "children": [
+            {
+              "name": "Signal",
+              "className": "ModuleScript",
+              "filePaths": [
+                "packages\\Signal.lua"
+              ]
+            },
+            {
+              "name": "TableUtil",
+              "className": "ModuleScript",
+              "filePaths": [
+                "packages\\TableUtil.lua"
+              ]
+            },
+            {
+              "name": "Trove",
+              "className": "ModuleScript",
+              "filePaths": [
+                "packages\\Trove.lua"
+              ]
+            }
+          ]
+        },
+        {
           "name": "Shared",
           "className": "Folder",
           "children": [
