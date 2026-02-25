@@ -1,0 +1,63 @@
+{
+  "name": "DummyTC",
+  "className": "DataModel",
+  "filePaths": [
+    "default.project.json"
+  ],
+  "children": [
+    {
+      "name": "ReplicatedFirst",
+      "className": "ReplicatedFirst",
+      "children": [
+        {
+          "name": "Client",
+          "className": "LocalScript",
+          "filePaths": [
+            "src/client\\init.client.luau"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ReplicatedStorage",
+      "className": "ReplicatedStorage",
+      "children": [
+        {
+          "name": "Shared",
+          "className": "Folder",
+          "children": [
+            {
+              "name": "Hello",
+              "className": "ModuleScript",
+              "filePaths": [
+                "src/shared\\Hello.luau"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ServerScriptService",
+      "className": "ServerScriptService",
+      "children": [
+        {
+          "name": "Server",
+          "className": "Script",
+          "filePaths": [
+            "src/server\\init.server.luau"
+          ],
+          "children": [
+            {
+              "name": "DamageDummyService",
+              "className": "ModuleScript",
+              "filePaths": [
+                "src/server\\DamageDummyService.luau"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
