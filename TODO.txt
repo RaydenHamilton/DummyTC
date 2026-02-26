@@ -1,0 +1,31 @@
+TODO:
+    make Dummy Damage colecter Module
+        - delete dummy
+        - count damage
+        - add to claim
+    make Weapon Attack Module
+        - weapon animations
+    make Object Placing Module
+        - grid system
+    make player Data module
+        - get plot data
+        - save plot data
+        - get player data
+        - set player data
+    make base Hanlder
+        - object placement
+        - add tags for part maybe
+    make dummy spawner
+        - spawn dummy
+        - give damage attibute
+
+MADE:
+    made Damage module
+        - damage dummy
+    make Convaier module
+        - moves part on when touching it
+
+PLAN:
+    build dummys
+    you can only equip 5 dummys at a time
+    steal all strap from fortnite
