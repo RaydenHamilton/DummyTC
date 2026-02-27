@@ -17,6 +17,8 @@ TODO:
         - add tags for part maybe
     make dummy spawner
         - connect to player data
+    make module loader
+        - init all modules
 MADE:
     made Damage module
         - damage dummy

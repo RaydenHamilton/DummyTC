@@ -3,6 +3,8 @@ local Players = game:GetService("Players")
 local PlayerDataServerService = require(script.parent.parent.SystemPackage.PlayerDataServerService)
 
 local playerDataServerSetup = {}
+playerDataServerSetup.__index = playerDataServerSetup
+
 local profileTemplate = {
 	Money = 0,
 	Builds = {},
@@ -10,18 +12,13 @@ local profileTemplate = {
 	Settings = {},
 }
 
-function playerDataServerSetup.new()
-    local playerDataServer= PlayerDataServerService.new(profileTemplate)
+function playerDataServerSetup.init()
+	PlayerDataServerService.init(profileTemplate)
 
-    Players.PlayerAdded:Connect(function(player)
-        playerDataServer:playerAdded(player)
-    end)
+	Players.PlayerAdded:Connect(PlayerDataServerService.playerAdded)
 
-    Players.PlayerRemoving:Connect(function(player)
-        playerDataServer:playerRemoving(player)
-    end)
-
+	Players.PlayerRemoving:Connect(PlayerDataServerService.playerRemoving)
+	return
 end
-
 
 return playerDataServerSetup
