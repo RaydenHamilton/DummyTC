@@ -19,7 +19,6 @@ function DummySpawner.new(...): Object
 			self:SetUpDummyClone():PivotTo(CFrame.new(Vector3.new(x,y,z)))
 		end
 	end)
-
 	return self
 end
 

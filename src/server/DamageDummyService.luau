@@ -21,14 +21,14 @@ function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 		end)
 	end
 
-	local function canDamage(bodyPart)
+	local function canNotDamage(bodyPart)
 		return not bodyPart:IsA("BasePart")
 			or typeof(bodyPart:GetAttribute("Damage")) ~= typeof(0)
 			or table.find(damagedParts, bodyPart)
 	end
 
 	local function SetDamagedPart(bodyPart: BasePart)
-		if canDamage(bodyPart) then
+		if canNotDamage(bodyPart) then
 			return
 		end
 		bodyPart:SetAttribute("Damage", bodyPart:GetAttribute("Damage") :: number + 1)

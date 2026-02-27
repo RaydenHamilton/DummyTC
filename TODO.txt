@@ -16,9 +16,7 @@ TODO:
         - object placement
         - add tags for part maybe
     make dummy spawner
-        - spawn dummy
-        - give damage attibute
-
+        - connect to player data
 MADE:
     made Damage module
         - damage dummy
