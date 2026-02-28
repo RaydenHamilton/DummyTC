@@ -18,7 +18,6 @@ function playerDataServerSetup.init()
 	Players.PlayerAdded:Connect(PlayerDataServerService.playerAdded)
 
 	Players.PlayerRemoving:Connect(PlayerDataServerService.playerRemoving)
-	return
 end
 
 return playerDataServerSetup

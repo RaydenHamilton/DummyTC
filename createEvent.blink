@@ -1,0 +1,10 @@
+-- these can be ignored if you are using the studio plugin
+option ClientOutput = "blink/client.luau"
+option ServerOutput = "blink/server.luau"
+
+event MyFirstEvent {
+    from: Server,
+    type: Reliable,
+    call: SingleSync,
+    data: string
+}

@@ -7,13 +7,12 @@ local ProfileStore = require(ReplicatedStorage.Packages.Profilestore)
 
 --// Module
 local PlayerDataServer = {}
-PlayerDataServer.__index = PlayerDataServer
 
 local PlayerStore
 local Profiles
 
 function PlayerDataServer.init(newTemplate: { any })
-	PlayerStore = ProfileStore.New("PlayerStore", newTemplate)
+	PlayerStore = ProfileStore.New("Dummy", newTemplate)
 	Profiles = {} :: { [Player]: typeof(PlayerStore:StartSessionAsync()) }
 
 	for _, player in Players:GetPlayers() do
@@ -21,18 +20,17 @@ function PlayerDataServer.init(newTemplate: { any })
 	end
 end
 
-
 function PlayerDataServer.set(player, valueName, NewValue)
-	Profiles[player][valueName] = NewValue
+	Profiles[player]["Data"][valueName] = NewValue
 end
 
-function PlayerDataServer.get(player:Player, valueName)
-	return Profiles[player][valueName]
+function PlayerDataServer.get(player: Player, valueName)
+	return Profiles[player]["Data"][valueName]
 end
 
 function PlayerDataServer.add(player, valueName, NewValue)
-	if typeof(Profiles[player][valueName]) == "number" then
-		Profiles[player][valueName] += NewValue
+	if typeof(Profiles[player]["Data"][valueName]) == "number" then
+		Profiles[player]["Data"][valueName] += NewValue
 	else
 		warn(valueName .. " is not a number")
 	end
@@ -62,7 +60,7 @@ function PlayerDataServer.playerAdded(player: Player)
 			-- print(profile)
 			Profiles[player] = profile
 			-- print(`Profile loaded for {player.DisplayName}!`)
-		-- otherwise you'll have to check whether "Data.Cash" is not nil
+			-- otherwise you'll have to check whether "Data.Cash" is not nil
 		else
 			-- The player has left before the profile session started
 			profile:EndSession()
@@ -73,8 +71,8 @@ function PlayerDataServer.playerAdded(player: Player)
 	end
 end
 
-function PlayerDataServer:playerRemoving(player: Player)
-	local profile = self.Profiles[player]
+function PlayerDataServer.playerRemoving(player: Player)
+	local profile = Profiles[player]
 	if profile ~= nil then
 		profile:EndSession()
 	end

@@ -1,0 +1,22 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+
+local playerData =
+	require(ReplicatedStorage.Shared.ModuleUniversal.PlayerDataHanlder.Implementation._PlayerDataServerSetup)
+playerData.init()
+
+-- this is a TEST Script
+game:IsLoaded()
+local damagePart = require(script.Parent.DamageDummyService)
+local conveyor = require(script.Parent.ConveyorService)
+local dummySpawner = require(script.Parent.DummySpawnerService)
+local collecter = require(script.Parent.Collecter)
+
+dummySpawner.new(-346, 0.25, 34)
+damagePart.new()
+conveyor.new()
+
+Players.PlayerAdded:Connect(function(player)
+	collecter.new(player, Workspace.Base.Builds.killpart)
+end)
