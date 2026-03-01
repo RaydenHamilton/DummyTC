@@ -11,6 +11,17 @@ local Observers = require(packages:WaitForChild("Observers"))
 local DamageDummy = {}
 DamageDummy.__index = DamageDummy
 
+local function burn(damagePart: BasePart, bodyPart: BasePart)
+	local burns, maxBurns = bodyPart:GetAttribute("Burns") :: number, bodyPart:GetAttribute("MaxBurns")
+	local originalColor = bodyPart:GetAttribute("Color")
+
+	if damagePart:GetAttribute("Burn") and burns < maxBurns then
+		bodyPart:SetAttribute("Burns", burns :: number + 1)
+		local percentage = (burns / maxBurns)
+		bodyPart.Color = originalColor:Lerp(Color3.new(), percentage)
+	end
+end
+
 function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 	local damagedParts = {}
 
@@ -31,7 +42,12 @@ function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 		if canNotDamage(bodyPart) then
 			return
 		end
-		bodyPart:SetAttribute("Damage", bodyPart:GetAttribute("Damage") :: number + 1)
+		local damage, maxDamage =
+			bodyPart:GetAttribute("Damage") :: number, bodyPart:GetAttribute("MaxDamage") :: number
+		if damage < maxDamage then
+			bodyPart:SetAttribute("Damage", damage + 1)
+		end
+		burn(damagePart, bodyPart)
 		damagedPartCooldown(bodyPart)
 	end
 

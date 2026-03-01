@@ -21,15 +21,20 @@ function PlayerDataServer.init(newTemplate: { any })
 end
 
 function PlayerDataServer.set(player, valueName, NewValue)
-	Profiles[player]["Data"][valueName] = NewValue
+	if Profiles[player] then
+		Profiles[player]["Data"][valueName] = NewValue
+	end
 end
 
 function PlayerDataServer.get(player: Player, valueName)
-	return Profiles[player]["Data"][valueName]
+	if Profiles[player] then
+		return Profiles[player]["Data"][valueName]
+	end
+	return {}
 end
 
 function PlayerDataServer.add(player, valueName, NewValue)
-	if typeof(Profiles[player]["Data"][valueName]) == "number" then
+	if Profiles[player] and typeof(Profiles[player]["Data"][valueName]) == "number" then
 		Profiles[player]["Data"][valueName] += NewValue
 	else
 		warn(valueName .. " is not a number")

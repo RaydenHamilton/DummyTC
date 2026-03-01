@@ -7,6 +7,9 @@ playerDataServerSetup.__index = playerDataServerSetup
 
 local profileTemplate = {
 	Money = 0,
+	Damage = 0,
+	MaxDamage = 0,
+	Experience = 0,
 	Builds = {},
 	Dummys = {},
 	Settings = {},
