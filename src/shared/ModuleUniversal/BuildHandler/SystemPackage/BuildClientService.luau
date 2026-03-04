@@ -106,8 +106,11 @@ function buildClient.new(objectName: string)
 		local newSnapped = getSnapPosition()
 		--TODO find next posible spot
 		if canMoveThere(newSnapped) then
+			newBuild.Transparency = 0.7
 			movePart(newSnapped)
 			lastSnapped = getSnapPosition()
+		else
+			newBuild.Transparency = 1
 		end
 	end)
 end
@@ -124,8 +127,9 @@ inputs.PlaceBuild.StateChanged:Connect(function(boolean)
 	elseif gridType == "Floor" then
 		floors[gridString] = true
 	end
-	-- clearOldFunction()
-	-- fire server
+	if canMoveThere(lastSnapped) then
+		-- fire server(cframe , newBuild.name)
+	end
 end)
 
 inputs.RotateBuild.StateChanged:Connect(function(boolean)
