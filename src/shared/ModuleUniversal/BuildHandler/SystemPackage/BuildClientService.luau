@@ -8,12 +8,16 @@ local Workspace = game:GetService("Workspace")
 local GRID = 12
 local inputs = ReplicatedStorage.Inputs.InputContext
 
+local floors = {}
+local walls = {}
+
 --// Varaibles
 local newBuild: BasePart
 local renderStepped: RBXScriptConnection
 local XOffSet: number = 0
 local ZOffSet: number = 0
 local Rotation: number = 0
+local lastSnapped: CFrame
 
 --// Module
 local buildClient = {}
@@ -55,6 +59,21 @@ local function getSnapPosition()
 	return snapped
 end
 
+local function canMoveThere(snap)
+	local gridType = newBuild:GetAttribute("GridType")
+	local gridString = snap.X .. "." .. snap.Z
+	if gridType == "Wall" then
+		if walls[gridString] then
+			return false
+		end
+	elseif gridType == "Floor" then
+		if floors[gridString] then
+			return false
+		end
+	end
+	return true
+end
+
 local function movePart(snapped)
 	newBuild.CFrame = newBuild.CFrame:Lerp(snapped, 0.4)
 end
@@ -71,7 +90,7 @@ function buildClient.new(objectName: string)
 	newBuild = build:Clone()
 	newBuild.CanCollide = false
 	newBuild.Parent = Workspace
-
+	newBuild.Transparency = 0.7
 	--// Varaibles
 	local gridType = newBuild:GetAttribute("GridType")
 
@@ -85,13 +104,25 @@ function buildClient.new(objectName: string)
 	--// Reder Mouse
 	renderStepped = RunService.RenderStepped:Connect(function()
 		local newSnapped = getSnapPosition()
-		movePart(newSnapped)
+		--TODO find next posible spot
+		if canMoveThere(newSnapped) then
+			movePart(newSnapped)
+			lastSnapped = getSnapPosition()
+		end
 	end)
 end
 
 inputs.PlaceBuild.StateChanged:Connect(function(boolean)
-	if not boolean then
+	if not boolean or not newBuild then
 		return
+	end
+	local gridType = newBuild:GetAttribute("GridType")
+
+	local gridString = lastSnapped.X .. "." .. lastSnapped.Z
+	if gridType == "Wall" then
+		walls[gridString] = true
+	elseif gridType == "Floor" then
+		floors[gridString] = true
 	end
 	-- clearOldFunction()
 	-- fire server
