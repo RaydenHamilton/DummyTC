@@ -6,9 +6,48 @@
   ],
   "children": [
     {
+      "name": "ReplicatedFirst",
+      "className": "ReplicatedFirst",
+      "children": [
+        {
+          "name": "Client",
+          "className": "Folder",
+          "children": [
+            {
+              "name": "ClientModuleLoader",
+              "className": "LocalScript",
+              "filePaths": [
+                "src/client\\ClientModuleLoader.client.luau"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "ReplicatedStorage",
       "className": "ReplicatedStorage",
       "children": [
+        {
+          "name": "Blink",
+          "className": "Folder",
+          "children": [
+            {
+              "name": "client",
+              "className": "ModuleScript",
+              "filePaths": [
+                "blink\\client.luau"
+              ]
+            },
+            {
+              "name": "server",
+              "className": "ModuleScript",
+              "filePaths": [
+                "blink\\server.luau"
+              ]
+            }
+          ]
+        },
         {
           "name": "Packages",
           "className": "Folder",
@@ -224,6 +263,66 @@
               "className": "Folder",
               "children": [
                 {
+                  "name": "BuildHandler",
+                  "className": "Folder",
+                  "children": [
+                    {
+                      "name": "Implementation",
+                      "className": "Folder",
+                      "children": [
+                        {
+                          "name": "_BuildClient",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\Implementation\\_BuildClient.luau"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "SystemPackage",
+                      "className": "Folder",
+                      "children": [
+                        {
+                          "name": "BuildClientService",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\SystemPackage\\BuildClientService.luau"
+                          ]
+                        },
+                        {
+                          "name": "BuildNetwork",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\SystemPackage\\BuildNetwork.luau"
+                          ]
+                        },
+                        {
+                          "name": "BuildServerService",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\SystemPackage\\BuildServerService.luau"
+                          ]
+                        },
+                        {
+                          "name": "BuildSharedService",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\SystemPackage\\BuildSharedService.luau"
+                          ]
+                        },
+                        {
+                          "name": "BuildTypes",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\SystemPackage\\BuildTypes.luau"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
                   "name": "PlayerDataHanlder",
                   "className": "Folder",
                   "children": [
@@ -295,10 +394,7 @@
       "children": [
         {
           "name": "Server",
-          "className": "Script",
-          "filePaths": [
-            "src/server\\init.server.luau"
-          ],
+          "className": "Folder",
           "children": [
             {
               "name": "Collecter",
@@ -329,10 +425,10 @@
               ]
             },
             {
-              "name": "PlayerDataHandler",
+              "name": "ServerModuleLoader",
               "className": "Script",
               "filePaths": [
-                "src/server\\PlayerDataHandler.server.luau"
+                "src/server\\ServerModuleLoader.server.luau"
               ]
             }
           ]
