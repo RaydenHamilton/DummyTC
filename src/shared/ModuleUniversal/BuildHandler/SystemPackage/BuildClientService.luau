@@ -76,7 +76,7 @@ end
 
 local function canMoveThere(snap)
 	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = snap.X .. "." .. snap.Z
+	local gridString = snap.X .. ".".. (snap.Y - newBuild.Size.Y/2).. "." .. snap.Z
 	if gridType == "Wall" then
 		if walls[gridString] then
 			return false
@@ -140,7 +140,7 @@ inputs.PlaceBuild.StateChanged:Connect(function(boolean)
 	end
 
 	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = lastSnapped.X .. "." .. lastSnapped.Z
+	local gridString = lastSnapped.X .."."..(lastSnapped.Y - newBuild.Size.Y/2).. "." .. lastSnapped.Z
 	if gridType == "Wall" then
 		walls[gridString] = true
 	elseif gridType == "Floor" then
