@@ -86,171 +86,6 @@
               "filePaths": [
                 "Packages\\Trove.lua"
               ]
-            },
-            {
-              "name": "_Index",
-              "className": "Folder",
-              "children": [
-                {
-                  "name": "sleitnick_observers@0.4.0",
-                  "className": "Folder",
-                  "children": [
-                    {
-                      "name": "observers",
-                      "className": "ModuleScript",
-                      "filePaths": [
-                        "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\init.luau",
-                        "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\default.project.json"
-                      ],
-                      "children": [
-                        {
-                          "name": "observeAttribute",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observeAttribute.luau"
-                          ]
-                        },
-                        {
-                          "name": "observeCharacter",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observeCharacter.luau"
-                          ]
-                        },
-                        {
-                          "name": "observeLocalCharacter",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observeLocalCharacter.luau"
-                          ]
-                        },
-                        {
-                          "name": "observePlayer",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observePlayer.luau"
-                          ]
-                        },
-                        {
-                          "name": "observeProperty",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observeProperty.luau"
-                          ]
-                        },
-                        {
-                          "name": "observeTag",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_observers@0.4.0\\observers\\lib\\observeTag.luau"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "sleitnick_signal@1.5.0",
-                  "className": "Folder",
-                  "children": [
-                    {
-                      "name": "signal",
-                      "className": "ModuleScript",
-                      "filePaths": [
-                        "Packages\\_Index\\sleitnick_signal@1.5.0\\signal\\init.lua"
-                      ],
-                      "children": [
-                        {
-                          "name": "init.spec",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_signal@1.5.0\\signal\\init.spec.lua"
-                          ]
-                        },
-                        {
-                          "name": "wally",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_signal@1.5.0\\signal\\wally.toml"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "sleitnick_table-util@1.2.1",
-                  "className": "Folder",
-                  "children": [
-                    {
-                      "name": "table-util",
-                      "className": "ModuleScript",
-                      "filePaths": [
-                        "Packages\\_Index\\sleitnick_table-util@1.2.1\\table-util\\init.lua"
-                      ],
-                      "children": [
-                        {
-                          "name": "init.spec",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_table-util@1.2.1\\table-util\\init.spec.lua"
-                          ]
-                        },
-                        {
-                          "name": "wally",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_table-util@1.2.1\\table-util\\wally.toml"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "sleitnick_trove@1.8.0",
-                  "className": "Folder",
-                  "children": [
-                    {
-                      "name": "trove",
-                      "className": "ModuleScript",
-                      "filePaths": [
-                        "Packages\\_Index\\sleitnick_trove@1.8.0\\trove\\init.luau"
-                      ],
-                      "children": [
-                        {
-                          "name": "init.test",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_trove@1.8.0\\trove\\init.test.luau"
-                          ]
-                        },
-                        {
-                          "name": "wally",
-                          "className": "ModuleScript",
-                          "filePaths": [
-                            "Packages\\_Index\\sleitnick_trove@1.8.0\\trove\\wally.toml"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "vyon_profilestore@1.0.3",
-                  "className": "Folder",
-                  "children": [
-                    {
-                      "name": "profilestore",
-                      "className": "ModuleScript",
-                      "filePaths": [
-                        "Packages\\_Index\\vyon_profilestore@1.0.3\\profilestore\\ProfileStore.luau",
-                        "Packages\\_Index\\vyon_profilestore@1.0.3\\profilestore\\default.project.json"
-                      ]
-                    }
-                  ]
-                }
-              ]
             }
           ]
         },
@@ -275,6 +110,13 @@
                           "className": "ModuleScript",
                           "filePaths": [
                             "src/shared\\ModuleUniversal\\BuildHandler\\Implementation\\_BuildClient.luau"
+                          ]
+                        },
+                        {
+                          "name": "_BuildServer",
+                          "className": "ModuleScript",
+                          "filePaths": [
+                            "src/shared\\ModuleUniversal\\BuildHandler\\Implementation\\_BuildServer.luau"
                           ]
                         }
                       ]

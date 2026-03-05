@@ -1,9 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
+local Modules = ReplicatedStorage.Shared.ModuleUniversal
 
-local playerData =
-	require(ReplicatedStorage.Shared.ModuleUniversal.PlayerDataHanlder.Implementation._PlayerDataServerSetup)
+local playerData = require(Modules.PlayerDataHanlder.Implementation._PlayerDataServerSetup)
+local builds = require(Modules.BuildHandler.Implementation._BuildServer)
+builds.init()
 playerData.init()
 
 -- this is a TEST Script

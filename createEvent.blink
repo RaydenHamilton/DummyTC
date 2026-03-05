@@ -2,9 +2,9 @@
 option ClientOutput = "blink/client.luau"
 option ServerOutput = "blink/server.luau"
 
-event MyFirstEvent {
-    from: Server,
+event PlaceBuild{
+    from: Client,
     type: Reliable,
     call: SingleSync,
-    data: string
+    data: (CFrame,string)
 }

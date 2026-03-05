@@ -4,6 +4,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+--// Modules
+local clientEvents = require(ReplicatedStorage.Blink.client)
+
 --// Const
 local GRID = 12
 local inputs = ReplicatedStorage.Inputs.InputContext
@@ -18,9 +21,20 @@ local XOffSet: number = 0
 local ZOffSet: number = 0
 local Rotation: number = 0
 local lastSnapped: CFrame
+local state = "Hidden"
 
 --// Module
 local buildClient = {}
+
+local function buildTransparency(number)
+	newBuild.Transparency = number
+	for _, child in newBuild:GetDescendants() do
+		if child:IsA("Decal") or child:IsA("BasePart") then
+			child.Transparency = number
+			state = number == 1 and "Disabled" or "Enabled"
+		end
+	end
+end
 
 local function clearOldFunction()
 	if renderStepped then
@@ -28,6 +42,7 @@ local function clearOldFunction()
 	end
 	if newBuild then
 		newBuild:Destroy()
+		newBuild = nil
 	end
 end
 
@@ -53,9 +68,9 @@ local function getSnapPosition()
 
 	local snapped = CFrame.new(
 		math.round(mousePos.X / GRID) * GRID + XOffSet,
-		math.round(mousePos.Y / GRID) * GRID + OffSet,
+		math.floor((mousePos.Y + 1) / GRID) * GRID + OffSet,
 		math.round(mousePos.Z / GRID) * GRID + ZOffSet
-	) * CFrame.Angles(0, math.rad(Rotation), 0)
+	) * CFrame.Angles(0, -math.rad(Rotation), 0)
 	return snapped
 end
 
@@ -90,7 +105,7 @@ function buildClient.new(objectName: string)
 	newBuild = build:Clone()
 	newBuild.CanCollide = false
 	newBuild.Parent = Workspace
-	newBuild.Transparency = 0.7
+	buildTransparency(0.7)
 	--// Varaibles
 	local gridType = newBuild:GetAttribute("GridType")
 
@@ -106,30 +121,38 @@ function buildClient.new(objectName: string)
 		local newSnapped = getSnapPosition()
 		--TODO find next posible spot
 		if canMoveThere(newSnapped) then
-			newBuild.Transparency = 0.7
+			buildTransparency(0.7)
 			movePart(newSnapped)
 			lastSnapped = getSnapPosition()
 		else
-			newBuild.Transparency = 1
+			buildTransparency(1)
+			movePart(newSnapped)
 		end
 	end)
 end
 
 inputs.PlaceBuild.StateChanged:Connect(function(boolean)
-	if not boolean or not newBuild then
+	if not boolean or not newBuild or state == "Hidden" then
 		return
 	end
-	local gridType = newBuild:GetAttribute("GridType")
+	if canMoveThere(lastSnapped) then
+		clientEvents.PlaceBuild.Fire(lastSnapped, newBuild.Name)
+	end
 
+	local gridType = newBuild:GetAttribute("GridType")
 	local gridString = lastSnapped.X .. "." .. lastSnapped.Z
 	if gridType == "Wall" then
 		walls[gridString] = true
 	elseif gridType == "Floor" then
 		floors[gridString] = true
 	end
-	if canMoveThere(lastSnapped) then
-		-- fire server(cframe , newBuild.name)
+end)
+
+inputs.ClearBuild.StateChanged:Connect(function(boolean)
+	if not boolean then
+		return
 	end
+	clearOldFunction()
 end)
 
 inputs.RotateBuild.StateChanged:Connect(function(boolean)
@@ -139,20 +162,16 @@ inputs.RotateBuild.StateChanged:Connect(function(boolean)
 	Rotation += 90
 	if newBuild and newBuild:GetAttribute("GridType") == "Wall" then
 		if Rotation % 360 == 0 then
-			print(0)
 			XOffSet = 6
 			ZOffSet = 0
 			Rotation = 0
 		elseif Rotation % 270 == 0 then
-			print(1)
 			XOffSet = 0
 			ZOffSet = -6
 		elseif Rotation % 180 == 0 then
-			print(2)
 			XOffSet = -6
 			ZOffSet = 0
 		elseif Rotation % 90 == 0 then
-			print(3)
 			XOffSet = 0
 			ZOffSet = 6
 		end

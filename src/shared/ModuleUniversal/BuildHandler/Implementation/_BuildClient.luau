@@ -9,7 +9,7 @@ function buildClient.init()
 	local builds = playerGui:WaitForChild("Menu")
 
 	for _, buildButton: GuiButton in builds:GetChildren() do
-		buildButton.Activated:Connect(function()    
+		buildButton.Activated:Connect(function()
 			buildClientService.new(buildButton.Name)
 		end)
 	end

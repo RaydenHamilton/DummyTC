@@ -161,24 +161,28 @@ local Queue: any = {
 
 local SerdesEvent = "?"
 local SerdesThread: thread?
-function SerdesFunctions.WriteEVENT_MyFirstEvent(Value: string): ()
-	-- Allocate BLOCK: 3 bytes
-	local BLOCK_START = Allocate(3)
-	buffer.writeu8(SendBuffer, BLOCK_START + 0, 0)
-	local Length = #Value
-	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
-	Allocate(Length)
-	buffer.writestring(SendBuffer, SendOffset, Value, Length)
+Queue.Reliable[0] = table.create(256)
+function SerdesFunctions.ReadEVENT_PlaceBuild(): (CFrame, string)
+	-- Read BLOCK: 26 bytes
+	local BLOCK_START = Read(26)
+	local X = buffer.readf32(RecieveBuffer, BLOCK_START + 0)
+	local Y = buffer.readf32(RecieveBuffer, BLOCK_START + 4)
+	local Z = buffer.readf32(RecieveBuffer, BLOCK_START + 8)
+	local Position = Vector3.new(X, Y, Z)
+	local rX = buffer.readf32(RecieveBuffer, BLOCK_START + 12)
+	local rY = buffer.readf32(RecieveBuffer, BLOCK_START + 16)
+	local rZ = buffer.readf32(RecieveBuffer, BLOCK_START + 20)
+	local Value1 = CFrame.new(Position) * CFrame.fromOrientation(rX, rY, rZ)
+	local Length = buffer.readu16(RecieveBuffer, BLOCK_START + 24)
+	local Value2 = buffer.readstring(RecieveBuffer, Read(Length), Length)
+	return Value1, Value2
 end
 
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
-	MyFirstEvent = {
-		Fire = NOOP,
-		FireAll = NOOP,
-		FireList = NOOP,
-		FireExcept = NOOP
+	PlaceBuild = {
+		On = NOOP
 	},
 	})
 	return Returns :: BLINK_EVENTS_SYMBOL
@@ -242,6 +246,18 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 		-- Read BLOCK: 1 bytes
 		local BLOCK_START = Read(1)
 		local Index = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
+		if Index == 0 then
+			local Value1: CFrame, Value2: string = SerdesFunctions.ReadEVENT_PlaceBuild()
+			if Events.Reliable[0] ~= nil then
+				SerdesEvent = "PlaceBuild"
+				Events.Reliable[0](Player, Value1, Value2)
+			else
+				if #Queue.Reliable[0] > 256 then
+					warn("[Blink]: Event queue of \"PlaceBuild\" exceeded 256, did you forget to implement a listener?")
+				end
+				table.insert(Queue.Reliable[0], {Player, Value1, Value2} :: {any})
+			end
+		end
 	end
 end)
 Unreliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instances: {Instance})
@@ -266,51 +282,19 @@ end)
 local Returns = table.freeze({
 	StepReplication = StepReplication,
 
-	MyFirstEvent = {
-		Fire = function(Player: Player, Value: string): ()
-			Load(PlayersMap[Player])
-			SerdesFunctions.WriteEVENT_MyFirstEvent(Value)
-			PlayersMap[Player] = Save()
-		end,
-		FireAll = function(Value: string): ()
-			Load()
-			SerdesFunctions.WriteEVENT_MyFirstEvent(Value)
-			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
-			for _, Player in Players:GetPlayers() do
-				Load(PlayersMap[Player])
-				local Position = Allocate(Size)
-				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
-				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
-				PlayersMap[Player] = Save()
+	PlaceBuild = {
+		On = function(Listener: (Player: Player, Value1: CFrame, Value2: string) -> ()): () -> ()
+			Events.Reliable[0] = Listener
+			for Index, Arguments in Queue.Reliable[0] do
+				Listener(table.unpack(Arguments))
 			end
-		end,
-		FireList = function(List: {Player}, Value: string): ()
-			Load()
-			SerdesFunctions.WriteEVENT_MyFirstEvent(Value)
-			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
-			for _, Player in List do
-				Load(PlayersMap[Player])
-				local Position = Allocate(Size)
-				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
-				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
-				PlayersMap[Player] = Save()
-			end
-		end,
-		FireExcept = function(Except: Player, Value: string): ()
-			Load()
-			SerdesFunctions.WriteEVENT_MyFirstEvent(Value)
-			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
-			for _, Player in Players:GetPlayers() do
-				if Player == Except then
-					continue
+			Queue.Reliable[0] = {}
+			return function (): ()
+				if Events.Reliable[0] == Listener then
+					Events.Reliable[0] = nil
 				end
-				Load(PlayersMap[Player])
-				local Position = Allocate(Size)
-				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
-				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
-				PlayersMap[Player] = Save()
 			end
-		end,
+		end
 	},
 })
 type BLINK_EVENTS_SYMBOL = typeof(Returns)
