@@ -9,11 +9,11 @@ local ProfileStore = require(ReplicatedStorage.Packages.Profilestore)
 local PlayerDataServer = {}
 
 local PlayerStore
-local Profiles
+local Profiles = {}
 
 function PlayerDataServer.init(newTemplate: { any })
-	PlayerStore = ProfileStore.New("Dummy", newTemplate)
-	Profiles = {} :: { [Player]: typeof(PlayerStore:StartSessionAsync()) }
+	PlayerStore = ProfileStore.New("PlayerData", newTemplate)
+	Profiles = Profiles :: { [Player]: typeof(PlayerStore:StartSessionAsync()) }
 
 	for _, player in Players:GetPlayers() do
 		task.spawn(PlayerDataServer.playerAdded(player))
@@ -30,7 +30,8 @@ function PlayerDataServer.get(player: Player, valueName)
 	if Profiles[player] then
 		return Profiles[player]["Data"][valueName]
 	end
-	return {}
+	warn("player does not exist")
+	return nil
 end
 
 function PlayerDataServer.add(player, valueName, NewValue)
