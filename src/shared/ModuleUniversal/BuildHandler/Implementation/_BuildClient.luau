@@ -14,7 +14,10 @@ function buildClient.init()
 		end)
 	end
 
-	
+	builds.RemoveBuild.Activated:Connect(function()
+		print("remove")
+		buildClientService.remove()
+	end)
 end
 
 return buildClient

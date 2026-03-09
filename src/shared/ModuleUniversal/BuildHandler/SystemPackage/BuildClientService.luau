@@ -11,6 +11,11 @@ local clientEvents = require(ReplicatedStorage.Blink.client)
 local GRID = 12
 local inputs = ReplicatedStorage.Inputs.InputContext
 
+--// variables
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local removeHighLight = Instance.new("Highlight")
+
 local floors = {}
 local walls = {}
 
@@ -59,8 +64,6 @@ local function placeWall()
 end
 
 local function getSnapPosition()
-	local player = Players.LocalPlayer
-	local mouse = player:GetMouse()
 	mouse.TargetFilter = newBuild
 
 	local mousePos = mouse.Hit.Position
@@ -76,7 +79,7 @@ end
 
 local function canMoveThere(snap)
 	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = snap.X .. ".".. (snap.Y - newBuild.Size.Y/2).. "." .. snap.Z
+	local gridString = snap.X .. "." .. (snap.Y - newBuild.Size.Y / 2) .. "." .. snap.Z
 	if gridType == "Wall" then
 		if walls[gridString] then
 			return false
@@ -98,7 +101,7 @@ function buildClient.new(objectName: string)
 
 	clearOldFunction()
 	if not build then
-		warn("Button does not match Build Name")
+		warn(`{objectName} does not exist in builds`)
 		return
 	end
 
@@ -131,6 +134,18 @@ function buildClient.new(objectName: string)
 	end)
 end
 
+function buildClient.remove()
+	clearOldFunction()
+	print("remove again")
+	RunService.RenderStepped:Connect(function()
+		local removeAblePart = mouse.Target
+		local owner = removeAblePart:GetAttribute("Owner")
+		print(typeof(owner), typeof(player.UserId), owner == player.UserId)
+		if owner and owner == player.UserId then
+			removeHighLight.Parent = removeAblePart
+		end
+	end)
+end
 inputs.PlaceBuild.StateChanged:Connect(function(boolean)
 	if not boolean or not newBuild or state == "Hidden" then
 		return
@@ -140,7 +155,7 @@ inputs.PlaceBuild.StateChanged:Connect(function(boolean)
 	end
 
 	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = lastSnapped.X .."."..(lastSnapped.Y - newBuild.Size.Y/2).. "." .. lastSnapped.Z
+	local gridString = lastSnapped.X .. "." .. (lastSnapped.Y - newBuild.Size.Y / 2) .. "." .. lastSnapped.Z
 	if gridType == "Wall" then
 		walls[gridString] = true
 	elseif gridType == "Floor" then
