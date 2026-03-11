@@ -51,13 +51,13 @@ local function clearOldFunction()
 	end
 end
 
-local function placeFloor()
+local function setFloorOffset()
 	XOffSet = 0
 	ZOffSet = 0
 	Rotation = 0
 end
 
-local function placeWall()
+local function setWallOffset()
 	XOffSet = 6
 	ZOffSet = 0
 	Rotation = 0
@@ -114,9 +114,9 @@ function buildClient.new(objectName: string)
 
 	--// Offesets
 	if gridType == "Floor" then
-		placeFloor()
+		setFloorOffset()
 	elseif gridType == "Wall" then
-		placeWall()
+		setWallOffset()
 	end
 
 	--// Reder Mouse
@@ -146,6 +146,7 @@ function buildClient.remove()
 		end
 	end)
 end
+
 inputs.PlaceBuild.StateChanged:Connect(function(boolean)
 	if not boolean or not newBuild or state == "Hidden" then
 		return

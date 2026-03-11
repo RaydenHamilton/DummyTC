@@ -29,6 +29,26 @@
       "className": "ReplicatedStorage",
       "children": [
         {
+          "name": "Blink",
+          "className": "Folder",
+          "children": [
+            {
+              "name": "client",
+              "className": "ModuleScript",
+              "filePaths": [
+                "blink\\client.luau"
+              ]
+            },
+            {
+              "name": "server",
+              "className": "ModuleScript",
+              "filePaths": [
+                "blink\\server.luau"
+              ]
+            }
+          ]
+        },
+        {
           "name": "Packages",
           "className": "Folder",
           "children": [
@@ -37,6 +57,13 @@
               "className": "ModuleScript",
               "filePaths": [
                 "Packages\\Observers.lua"
+              ]
+            },
+            {
+              "name": "Profilestore",
+              "className": "ModuleScript",
+              "filePaths": [
+                "Packages\\Profilestore.lua"
               ]
             },
             {
@@ -208,6 +235,20 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "name": "vyon_profilestore@1.0.3",
+                  "className": "Folder",
+                  "children": [
+                    {
+                      "name": "profilestore",
+                      "className": "ModuleScript",
+                      "filePaths": [
+                        "Packages\\_Index\\vyon_profilestore@1.0.3\\profilestore\\ProfileStore.luau",
+                        "Packages\\_Index\\vyon_profilestore@1.0.3\\profilestore\\default.project.json"
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -351,26 +392,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "Blink",
-          "className": "Folder",
-          "children": [
-            {
-              "name": "client",
-              "className": "ModuleScript",
-              "filePaths": [
-                "blink\\client.luau"
-              ]
-            },
-            {
-              "name": "server",
-              "className": "ModuleScript",
-              "filePaths": [
-                "blink\\server.luau"
-              ]
-            }
-          ]
         }
       ]
     },
@@ -383,13 +404,6 @@
           "className": "Folder",
           "children": [
             {
-              "name": "DamageDummyService",
-              "className": "ModuleScript",
-              "filePaths": [
-                "src/server\\DamageDummyService.luau"
-              ]
-            },
-            {
               "name": "Collecter",
               "className": "ModuleScript",
               "filePaths": [
@@ -401,6 +415,13 @@
               "className": "ModuleScript",
               "filePaths": [
                 "src/server\\ConveyorService.luau"
+              ]
+            },
+            {
+              "name": "DamageDummyService",
+              "className": "ModuleScript",
+              "filePaths": [
+                "src/server\\DamageDummyService.luau"
               ]
             },
             {

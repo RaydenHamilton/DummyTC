@@ -6,31 +6,33 @@ local serverEvents = require(ReplicatedStorage.Blink.server)
 
 local BuildServer = {}
 
-local function changePlayerData(player, name, cframe: CFrame)
+local function changePlayerData(player: Player, name: string, cframe: CFrame)
+	local offset = Workspace:WaitForChild("Map"):WaitForChild("Baseplate").Position
+	local newCFrame = cframe - offset + Vector3.new(0, offset.Y, 0)
 	local newBuild: BasePart = ReplicatedStorage.Assets.Builds[name]
 	local playerBuilds = playerData.get(player, "Builds")
-	local gridString = cframe.X .. "." .. (cframe.Y - newBuild.Size.Y / 2) .. "." .. cframe.Z
-	playerBuilds[gridString] = { name, { cframe:GetComponents() } }
+	local gridString = newCFrame.X .. "." .. (newCFrame.Y - newBuild.Size.Y / 2) .. "." .. newCFrame.Z
+	playerBuilds[gridString] = { name, { newCFrame:GetComponents() } }
 
 	playerData.set(player, "Builds", playerBuilds)
 end
 
-local function placeBuild(player: Player, objectName: BasePart, objectCFrame: CFrame)
+local function placeBuild(player: Player, objectName: string, objectCFrame: CFrame)
 	local NewBuild: BasePart = ReplicatedStorage.Assets.Builds[objectName]:Clone()
 	NewBuild.Parent = Workspace[player.UserId]
 	NewBuild.CFrame = objectCFrame
 	NewBuild:SetAttribute("Owner", player.UserId)
 end
 
-function BuildServer.new(player, objectName, objectCFrame)
+function BuildServer.new(player: Player, objectCFrame: CFrame, objectName: string)
+	-- local offset = Workspace[player.UserId]..CFrame
+
 	placeBuild(player, objectName, objectCFrame)
 	changePlayerData(player, objectName, objectCFrame)
 end
 
 function BuildServer.init()
-	serverEvents.PlaceBuild.On(function(player, Cframe, objectName)
-		BuildServer.new(player, objectName, Cframe)
-	end)
+	serverEvents.PlaceBuild.On(BuildServer.new)
 end
 
 function BuildServer.playerAdded(player: Player)
@@ -41,9 +43,12 @@ function BuildServer.playerAdded(player: Player)
 		task.wait()
 	until playerData.get(player, "Builds")
 	local playerBuilds = playerData.get(player, "Builds")
+
+	local offset = Workspace:WaitForChild("Map"):WaitForChild("Baseplate").Position
+
 	for _, buildData in playerBuilds do
 		local name = buildData[1]
-		local cframe = CFrame.new(table.unpack(buildData[2]))
+		local cframe = CFrame.new(table.unpack(buildData[2])) + offset - Vector3.new(0, offset.Y, 0)
 		placeBuild(player, name, cframe)
 	end
 end

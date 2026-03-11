@@ -30,7 +30,6 @@ function PlayerDataServer.get(player: Player, valueName)
 	if Profiles[player] then
 		return Profiles[player]["Data"][valueName]
 	end
-	warn("player does not exist")
 	return nil
 end
 
