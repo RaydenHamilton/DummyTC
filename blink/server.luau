@@ -162,6 +162,7 @@ local Queue: any = {
 local SerdesEvent = "?"
 local SerdesThread: thread?
 Queue.Reliable[0] = table.create(256)
+Queue.Reliable[1] = table.create(256)
 function SerdesFunctions.ReadEVENT_PlaceBuild(): (CFrame, string)
 	-- Read BLOCK: 26 bytes
 	local BLOCK_START = Read(26)
@@ -178,11 +179,34 @@ function SerdesFunctions.ReadEVENT_PlaceBuild(): (CFrame, string)
 	return Value1, Value2
 end
 
+function SerdesFunctions.ReadEVENT_RemoveBuild(): (BasePart)
+	RecieveInstanceCursor += 1
+	local Value1 = RecieveInstances[RecieveInstanceCursor]
+	if typeof(Value1) ~= "Instance" then error(`Expected an Instance, got {typeof(Value1)} instead.`) end
+	if not Value1:IsA("BasePart") then error(`Expected an Instance of type "BasePart", got "{Value1.ClassName}" instead.`) end
+	return Value1
+end
+
+function SerdesFunctions.WriteEVENT_GiveClientData(Value: nil): ()
+	-- Allocate BLOCK: 1 bytes
+	local BLOCK_START = Allocate(1)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 2)
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
 	PlaceBuild = {
 		On = NOOP
+	},
+	RemoveBuild = {
+		On = NOOP
+	},
+	GiveClientData = {
+		Fire = NOOP,
+		FireAll = NOOP,
+		FireList = NOOP,
+		FireExcept = NOOP
 	},
 	})
 	return Returns :: BLINK_EVENTS_SYMBOL
@@ -257,6 +281,17 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 				end
 				table.insert(Queue.Reliable[0], {Player, Value1, Value2} :: {any})
 			end
+		elseif Index == 1 then
+			local Value1: BasePart = SerdesFunctions.ReadEVENT_RemoveBuild()
+			if Events.Reliable[1] ~= nil then
+				SerdesEvent = "RemoveBuild"
+				Events.Reliable[1](Player, Value1)
+			else
+				if #Queue.Reliable[1] > 256 then
+					warn("[Blink]: Event queue of \"RemoveBuild\" exceeded 256, did you forget to implement a listener?")
+				end
+				table.insert(Queue.Reliable[1], {Player, Value1} :: {any})
+			end
 		end
 	end
 end)
@@ -295,6 +330,66 @@ local Returns = table.freeze({
 				end
 			end
 		end
+	},
+	RemoveBuild = {
+		On = function(Listener: (Player: Player, Value1: BasePart) -> ()): () -> ()
+			Events.Reliable[1] = Listener
+			for Index, Arguments in Queue.Reliable[1] do
+				Listener(table.unpack(Arguments))
+			end
+			Queue.Reliable[1] = {}
+			return function (): ()
+				if Events.Reliable[1] == Listener then
+					Events.Reliable[1] = nil
+				end
+			end
+		end
+	},
+	GiveClientData = {
+		Fire = function(Player: Player, Value: nil): ()
+			Load(PlayersMap[Player])
+			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			PlayersMap[Player] = Save()
+		end,
+		FireAll = function(Value: nil): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in Players:GetPlayers() do
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
+		FireList = function(List: {Player}, Value: nil): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in List do
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
+		FireExcept = function(Except: Player, Value: nil): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in Players:GetPlayers() do
+				if Player == Except then
+					continue
+				end
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
 	},
 })
 type BLINK_EVENTS_SYMBOL = typeof(Returns)

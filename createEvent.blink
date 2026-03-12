@@ -8,3 +8,17 @@ event PlaceBuild{
     call: SingleSync,
     data: (CFrame,string)
 }
+
+event RemoveBuild{
+    from: Client,
+    type: Reliable,
+    call: SingleSync,
+    data: (Instance(BasePart))
+}
+
+event GiveClientData{
+    from: Server,
+    type: Reliable,
+    call: SingleSync,
+    data: ()
+}

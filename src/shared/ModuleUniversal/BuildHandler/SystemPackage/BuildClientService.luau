@@ -14,7 +14,7 @@ local inputs = ReplicatedStorage.Inputs.InputContext
 --// variables
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
-local removeHighLight = Instance.new("Highlight")
+local removeHighLight: Highlight = Instance.new("Highlight")
 
 local floors = {}
 local walls = {}
@@ -26,7 +26,7 @@ local XOffSet: number = 0
 local ZOffSet: number = 0
 local Rotation: number = 0
 local lastSnapped: CFrame
-local state = "Hidden"
+local placementState = "Idle"
 
 --// Module
 local buildClient = {}
@@ -36,7 +36,7 @@ local function buildTransparency(number)
 	for _, child in newBuild:GetDescendants() do
 		if child:IsA("Decal") or child:IsA("BasePart") then
 			child.Transparency = number
-			state = number == 1 and "Disabled" or "Enabled"
+			placementState = number == 1 and "Disabled" or "Enabled"
 		end
 	end
 end
@@ -134,21 +134,42 @@ function buildClient.new(objectName: string)
 	end)
 end
 
+local function canRemove(part: BasePart?)
+	return part
+		and part.Parent
+		and part:GetAttribute("Owner")
+		and part:GetAttribute("Owner") == player.UserId
+		and placementState == "Removing"
+end
+
 function buildClient.remove()
 	clearOldFunction()
-	print("remove again")
+	placementState = "Removing"
 	RunService.RenderStepped:Connect(function()
 		local removeAblePart = mouse.Target
-		local owner = removeAblePart:GetAttribute("Owner")
-		print(typeof(owner), typeof(player.UserId), owner == player.UserId)
-		if owner and owner == player.UserId then
-			removeHighLight.Parent = removeAblePart
+
+		if not canRemove(removeAblePart) then
+			removeHighLight.Parent = nil
+			return
 		end
+
+		removeHighLight.Parent = removeAblePart
 	end)
 end
 
 inputs.PlaceBuild.StateChanged:Connect(function(boolean)
-	if not boolean or not newBuild or state == "Hidden" then
+	if not boolean and placementState ~= "Removing" then
+		return
+	end
+	local targetPart = mouse.Target
+	if canRemove(targetPart) then
+		removeHighLight.Parent = nil
+		clientEvents.RemoveBuild.Fire(targetPart)
+	end
+end)
+
+inputs.PlaceBuild.StateChanged:Connect(function(boolean)
+	if not boolean or not newBuild or placementState ~= "Enabled" then
 		return
 	end
 	if canMoveThere(lastSnapped) then
@@ -169,6 +190,7 @@ inputs.ClearBuild.StateChanged:Connect(function(boolean)
 		return
 	end
 	clearOldFunction()
+	placementState = "Idle"
 end)
 
 inputs.RotateBuild.StateChanged:Connect(function(boolean)

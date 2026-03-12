@@ -160,6 +160,7 @@ local Queue: any = {
 
 local SerdesEvent = "?"
 local SerdesThread: thread?
+Queue.Reliable[2] = table.create(256)
 function SerdesFunctions.WriteEVENT_PlaceBuild(Value1: CFrame, Value2: string): ()
 	-- Allocate BLOCK: 27 bytes
 	local BLOCK_START = Allocate(27)
@@ -178,11 +179,28 @@ function SerdesFunctions.WriteEVENT_PlaceBuild(Value1: CFrame, Value2: string): 
 	buffer.writestring(SendBuffer, SendOffset, Value2, Length)
 end
 
+function SerdesFunctions.WriteEVENT_RemoveBuild(Value1: BasePart): ()
+	-- Allocate BLOCK: 1 bytes
+	local BLOCK_START = Allocate(1)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 1)
+	table.insert(SendInstances, Value1 or Null)
+end
+
+function SerdesFunctions.ReadEVENT_GiveClientData(): (nil)
+	return Value
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
 	PlaceBuild = {
 		Fire = NOOP
+	},
+	RemoveBuild = {
+		Fire = NOOP
+	},
+	GiveClientData = {
+		On = NOOP
 	},
 	})
 	return Returns :: BLINK_EVENTS_SYMBOL
@@ -226,6 +244,18 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 		-- Read BLOCK: 1 bytes
 		local BLOCK_START = Read(1)
 		local Index = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
+		if Index == 2 then
+			local Value: nil = SerdesFunctions.ReadEVENT_GiveClientData()
+			if Events.Reliable[2] ~= nil then
+				SerdesEvent = "GiveClientData"
+				Events.Reliable[2](Value)
+			else
+				if #Queue.Reliable[2] > 256 then
+					warn("[Blink]: Event queue of \"GiveClientData\" exceeded 256, did you forget to implement a listener?")
+				end
+				table.insert(Queue.Reliable[2], {Value} :: {any})
+			end
+		end
 	end
 end)
 Unreliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
@@ -253,6 +283,25 @@ local Returns = table.freeze({
 	PlaceBuild = {
 		Fire = function(Value1: CFrame, Value2: string): ()
 			SerdesFunctions.WriteEVENT_PlaceBuild(Value1, Value2)
+		end
+	},
+	RemoveBuild = {
+		Fire = function(Value1: BasePart): ()
+			SerdesFunctions.WriteEVENT_RemoveBuild(Value1)
+		end
+	},
+	GiveClientData = {
+		On = function(Listener: (Value: nil) -> ()): () -> ()
+			Events.Reliable[2] = Listener
+			for Index, Arguments in Queue.Reliable[2] do
+				Listener(table.unpack(Arguments))
+			end
+			Queue.Reliable[2] = {}
+			return function (): ()
+				if Events.Reliable[2] == Listener then
+					Events.Reliable[2] = nil
+				end
+			end
 		end
 	},
 })
