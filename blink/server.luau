@@ -181,16 +181,20 @@ end
 
 function SerdesFunctions.ReadEVENT_RemoveBuild(): (BasePart)
 	RecieveInstanceCursor += 1
-	local Value1 = RecieveInstances[RecieveInstanceCursor]
-	if typeof(Value1) ~= "Instance" then error(`Expected an Instance, got {typeof(Value1)} instead.`) end
-	if not Value1:IsA("BasePart") then error(`Expected an Instance of type "BasePart", got "{Value1.ClassName}" instead.`) end
-	return Value1
+	local Value = RecieveInstances[RecieveInstanceCursor]
+	if typeof(Value) ~= "Instance" then error(`Expected an Instance, got {typeof(Value)} instead.`) end
+	if not Value:IsA("BasePart") then error(`Expected an Instance of type "BasePart", got "{Value.ClassName}" instead.`) end
+	return Value
 end
 
-function SerdesFunctions.WriteEVENT_GiveClientData(Value: nil): ()
-	-- Allocate BLOCK: 1 bytes
-	local BLOCK_START = Allocate(1)
+function SerdesFunctions.WriteEVENT_SetClientData(Value: string): ()
+	-- Allocate BLOCK: 3 bytes
+	local BLOCK_START = Allocate(3)
 	buffer.writeu8(SendBuffer, BLOCK_START + 0, 2)
+	local Length = #Value
+	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value, Length)
 end
 
 if not RunService:IsRunning() then
@@ -202,7 +206,7 @@ if not RunService:IsRunning() then
 	RemoveBuild = {
 		On = NOOP
 	},
-	GiveClientData = {
+	SetClientData = {
 		Fire = NOOP,
 		FireAll = NOOP,
 		FireList = NOOP,
@@ -282,15 +286,15 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 				table.insert(Queue.Reliable[0], {Player, Value1, Value2} :: {any})
 			end
 		elseif Index == 1 then
-			local Value1: BasePart = SerdesFunctions.ReadEVENT_RemoveBuild()
+			local Value: BasePart = SerdesFunctions.ReadEVENT_RemoveBuild()
 			if Events.Reliable[1] ~= nil then
 				SerdesEvent = "RemoveBuild"
-				Events.Reliable[1](Player, Value1)
+				Events.Reliable[1](Player, Value)
 			else
 				if #Queue.Reliable[1] > 256 then
 					warn("[Blink]: Event queue of \"RemoveBuild\" exceeded 256, did you forget to implement a listener?")
 				end
-				table.insert(Queue.Reliable[1], {Player, Value1} :: {any})
+				table.insert(Queue.Reliable[1], {Player, Value} :: {any})
 			end
 		end
 	end
@@ -332,7 +336,7 @@ local Returns = table.freeze({
 		end
 	},
 	RemoveBuild = {
-		On = function(Listener: (Player: Player, Value1: BasePart) -> ()): () -> ()
+		On = function(Listener: (Player: Player, Value: BasePart) -> ()): () -> ()
 			Events.Reliable[1] = Listener
 			for Index, Arguments in Queue.Reliable[1] do
 				Listener(table.unpack(Arguments))
@@ -345,15 +349,15 @@ local Returns = table.freeze({
 			end
 		end
 	},
-	GiveClientData = {
-		Fire = function(Player: Player, Value: nil): ()
+	SetClientData = {
+		Fire = function(Player: Player, Value: string): ()
 			Load(PlayersMap[Player])
-			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			SerdesFunctions.WriteEVENT_SetClientData(Value)
 			PlayersMap[Player] = Save()
 		end,
-		FireAll = function(Value: nil): ()
+		FireAll = function(Value: string): ()
 			Load()
-			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			SerdesFunctions.WriteEVENT_SetClientData(Value)
 			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
 			for _, Player in Players:GetPlayers() do
 				Load(PlayersMap[Player])
@@ -363,9 +367,9 @@ local Returns = table.freeze({
 				PlayersMap[Player] = Save()
 			end
 		end,
-		FireList = function(List: {Player}, Value: nil): ()
+		FireList = function(List: {Player}, Value: string): ()
 			Load()
-			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			SerdesFunctions.WriteEVENT_SetClientData(Value)
 			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
 			for _, Player in List do
 				Load(PlayersMap[Player])
@@ -375,9 +379,9 @@ local Returns = table.freeze({
 				PlayersMap[Player] = Save()
 			end
 		end,
-		FireExcept = function(Except: Player, Value: nil): ()
+		FireExcept = function(Except: Player, Value: string): ()
 			Load()
-			SerdesFunctions.WriteEVENT_GiveClientData(Value)
+			SerdesFunctions.WriteEVENT_SetClientData(Value)
 			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
 			for _, Player in Players:GetPlayers() do
 				if Player == Except then

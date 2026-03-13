@@ -160,6 +160,7 @@ local Queue: any = {
 
 local SerdesEvent = "?"
 local SerdesThread: thread?
+Events.Reliable[2] = {}
 Queue.Reliable[2] = table.create(256)
 function SerdesFunctions.WriteEVENT_PlaceBuild(Value1: CFrame, Value2: string): ()
 	-- Allocate BLOCK: 27 bytes
@@ -179,14 +180,18 @@ function SerdesFunctions.WriteEVENT_PlaceBuild(Value1: CFrame, Value2: string): 
 	buffer.writestring(SendBuffer, SendOffset, Value2, Length)
 end
 
-function SerdesFunctions.WriteEVENT_RemoveBuild(Value1: BasePart): ()
+function SerdesFunctions.WriteEVENT_RemoveBuild(Value: BasePart): ()
 	-- Allocate BLOCK: 1 bytes
 	local BLOCK_START = Allocate(1)
 	buffer.writeu8(SendBuffer, BLOCK_START + 0, 1)
-	table.insert(SendInstances, Value1 or Null)
+	table.insert(SendInstances, Value or Null)
 end
 
-function SerdesFunctions.ReadEVENT_GiveClientData(): (nil)
+function SerdesFunctions.ReadEVENT_SetClientData(): (string)
+	-- Read BLOCK: 2 bytes
+	local BLOCK_START = Read(2)
+	local Length = buffer.readu16(RecieveBuffer, BLOCK_START + 0)
+	local Value = buffer.readstring(RecieveBuffer, Read(Length), Length)
 	return Value
 end
 
@@ -199,7 +204,7 @@ if not RunService:IsRunning() then
 	RemoveBuild = {
 		Fire = NOOP
 	},
-	GiveClientData = {
+	SetClientData = {
 		On = NOOP
 	},
 	})
@@ -245,13 +250,15 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 		local BLOCK_START = Read(1)
 		local Index = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
 		if Index == 2 then
-			local Value: nil = SerdesFunctions.ReadEVENT_GiveClientData()
-			if Events.Reliable[2] ~= nil then
-				SerdesEvent = "GiveClientData"
-				Events.Reliable[2](Value)
+			local Value: string = SerdesFunctions.ReadEVENT_SetClientData()
+			if #Events.Reliable[2] > 0 then
+				for _, Listener in Events.Reliable[2] do
+					SerdesEvent = "SetClientData"
+					Listener(Value)
+				end
 			else
 				if #Queue.Reliable[2] > 256 then
-					warn("[Blink]: Event queue of \"GiveClientData\" exceeded 256, did you forget to implement a listener?")
+					warn("[Blink]: Event queue of \"SetClientData\" exceeded 256, did you forget to implement a listener?")
 				end
 				table.insert(Queue.Reliable[2], {Value} :: {any})
 			end
@@ -286,20 +293,21 @@ local Returns = table.freeze({
 		end
 	},
 	RemoveBuild = {
-		Fire = function(Value1: BasePart): ()
-			SerdesFunctions.WriteEVENT_RemoveBuild(Value1)
+		Fire = function(Value: BasePart): ()
+			SerdesFunctions.WriteEVENT_RemoveBuild(Value)
 		end
 	},
-	GiveClientData = {
-		On = function(Listener: (Value: nil) -> ()): () -> ()
-			Events.Reliable[2] = Listener
+	SetClientData = {
+		On = function(Listener: (Value: string) -> ()): () -> ()
+			table.insert(Events.Reliable[2], Listener)
 			for Index, Arguments in Queue.Reliable[2] do
 				Listener(table.unpack(Arguments))
 			end
 			Queue.Reliable[2] = {}
 			return function (): ()
-				if Events.Reliable[2] == Listener then
-					Events.Reliable[2] = nil
+				local Index = table.find(Events.Reliable[2], Listener)
+				if Index ~= nil then
+					table.remove(Events.Reliable[2], Index)
 				end
 			end
 		end

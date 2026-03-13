@@ -8,16 +8,15 @@ function buildClient.init()
 	local playerGui = player.PlayerGui
 	local builds = playerGui:WaitForChild("Menu")
 
+	buildClientService.init()
+
 	for _, buildButton: GuiButton in builds:GetChildren() do
 		buildButton.Activated:Connect(function()
 			buildClientService.new(buildButton.Name)
 		end)
 	end
 
-	builds:WaitForChild("Remove").Activated:Connect(function()
-		print("remove")
-		buildClientService.remove()
-	end)
+	builds:WaitForChild("Remove").Activated:Connect(buildClientService.remove)
 end
 
 return buildClient

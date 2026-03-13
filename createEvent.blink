@@ -13,12 +13,12 @@ event RemoveBuild{
     from: Client,
     type: Reliable,
     call: SingleSync,
-    data: (Instance(BasePart))
+    data: Instance(BasePart)
 }
 
-event GiveClientData{
+event SetClientData{
     from: Server,
     type: Reliable,
-    call: SingleSync,
-    data: ()
+    call: ManySync,
+    data: string
 }

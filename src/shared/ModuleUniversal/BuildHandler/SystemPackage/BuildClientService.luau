@@ -6,20 +6,20 @@ local Workspace = game:GetService("Workspace")
 
 --// Modules
 local clientEvents = require(ReplicatedStorage.Blink.client)
+local buildSharedService = require(script.Parent.BuildSharedService)
 
 --// Const
 local GRID = 12
-local inputs = ReplicatedStorage.Inputs.InputContext
 
---// variables
+--// Variables
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 local removeHighLight: Highlight = Instance.new("Highlight")
+local inputs = ReplicatedStorage.Inputs.InputContext
 
-local floors = {}
-local walls = {}
+local builds = {}
 
---// Varaibles
+--// Defaults
 local newBuild: BasePart
 local renderStepped: RBXScriptConnection
 local XOffSet: number = 0
@@ -30,6 +30,20 @@ local placementState = "Idle"
 
 --// Module
 local buildClient = {}
+
+local function setClientBuildData(playerBuildData)
+	local str = string.split(playerBuildData, " ")
+	for _, ChangeIndex in str do
+		if ChangeIndex == "" then
+			break
+		end
+		builds[ChangeIndex] = true
+	end
+end
+
+function buildClient.init()
+	clientEvents.SetClientData.On(setClientBuildData)
+end
 
 local function buildTransparency(number)
 	newBuild.Transparency = number
@@ -67,27 +81,20 @@ local function getSnapPosition()
 	mouse.TargetFilter = newBuild
 
 	local mousePos = mouse.Hit.Position
-	local OffSet = newBuild.Size.Y / 2
+	local offSet = newBuild.Size.Y / 2
 
 	local snapped = CFrame.new(
 		math.round(mousePos.X / GRID) * GRID + XOffSet,
-		math.floor((mousePos.Y + 1) / GRID) * GRID + OffSet,
+		math.floor((mousePos.Y + 1) / GRID) * GRID + offSet,
 		math.round(mousePos.Z / GRID) * GRID + ZOffSet
 	) * CFrame.Angles(0, -math.rad(Rotation), 0)
 	return snapped
 end
 
-local function canMoveThere(snap)
-	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = snap.X .. "." .. (snap.Y - newBuild.Size.Y / 2) .. "." .. snap.Z
-	if gridType == "Wall" then
-		if walls[gridString] then
-			return false
-		end
-	elseif gridType == "Floor" then
-		if floors[gridString] then
-			return false
-		end
+local function canMoveThere(snap: CFrame)
+	local index = buildSharedService.getIndexString(snap, newBuild.Name)
+	if builds[index] then
+		return false
 	end
 	return true
 end
@@ -152,51 +159,41 @@ function buildClient.remove()
 			removeHighLight.Parent = nil
 			return
 		end
-
 		removeHighLight.Parent = removeAblePart
 	end)
 end
 
-inputs.PlaceBuild.StateChanged:Connect(function(boolean)
-	if not boolean and placementState ~= "Removing" then
+inputs.RemoveBuild.Pressed:Connect(function()
+	if placementState ~= "Removing" then
 		return
 	end
 	local targetPart = mouse.Target
 	if canRemove(targetPart) then
 		removeHighLight.Parent = nil
 		clientEvents.RemoveBuild.Fire(targetPart)
+		local index = buildSharedService.getIndexString(targetPart.CFrame, mouse.Target.Name)
+		builds[index] = nil
 	end
 end)
 
-inputs.PlaceBuild.StateChanged:Connect(function(boolean)
-	if not boolean or not newBuild or placementState ~= "Enabled" then
+inputs.PlaceBuild.Pressed:Connect(function()
+	if not newBuild or placementState ~= "Enabled" then
 		return
 	end
 	if canMoveThere(lastSnapped) then
 		clientEvents.PlaceBuild.Fire(lastSnapped, newBuild.Name)
 	end
 
-	local gridType = newBuild:GetAttribute("GridType")
-	local gridString = lastSnapped.X .. "." .. (lastSnapped.Y - newBuild.Size.Y / 2) .. "." .. lastSnapped.Z
-	if gridType == "Wall" then
-		walls[gridString] = true
-	elseif gridType == "Floor" then
-		floors[gridString] = true
-	end
+	local index = buildSharedService.getIndexString(lastSnapped, newBuild.Name)
+	builds[index] = true
 end)
 
-inputs.ClearBuild.StateChanged:Connect(function(boolean)
-	if not boolean then
-		return
-	end
+inputs.ClearBuild.Pressed:Connect(function()
 	clearOldFunction()
 	placementState = "Idle"
 end)
 
-inputs.RotateBuild.StateChanged:Connect(function(boolean)
-	if not boolean then
-		return
-	end
+inputs.RotateBuild.Pressed:Connect(function()
 	Rotation += 90
 	if newBuild and newBuild:GetAttribute("GridType") == "Wall" then
 		if Rotation % 360 == 0 then
