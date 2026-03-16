@@ -1,3 +1,4 @@
+--!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -91,8 +92,9 @@ function BuildServer.playerAdded(player: Player)
 end
 
 function BuildServer.playerRemoved(player: Player)
-	if Workspace[player.UserId].Parent then
-		Workspace[player.UserId]:Destory()
+	local playerFolder: Folder = Workspace[player.UserId]
+	if playerFolder.Parent then
+		playerFolder:Destroy()
 	end
 end
 

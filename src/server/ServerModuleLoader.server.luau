@@ -5,11 +5,15 @@ local Workspace = game:GetService("Workspace")
 local Modules = ReplicatedStorage.Shared.ModuleUniversal
 local playerData = require(Modules.PlayerDataHanlder.Implementation._PlayerDataServerSetup)
 local builds = require(Modules.BuildHandler.Implementation._BuildServer)
+local dummyBuilder = require(Modules.DummyBuilderHanlder.Implementation._DummyBuilderServerSetup)
+
 builds.init()
 playerData.init()
+dummyBuilder.init()
 
 -- this is a TEST Script
 game:IsLoaded()
+
 local damagePart = require(script.Parent.DamageDummyService)
 local conveyor = require(script.Parent.ConveyorService)
 local dummySpawner = require(script.Parent.DummySpawnerService)

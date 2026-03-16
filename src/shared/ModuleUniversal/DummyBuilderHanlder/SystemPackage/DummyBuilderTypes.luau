@@ -1,0 +1,3 @@
+local DummyBuilderType = {}
+
+return DummyBuilderType
