@@ -23,3 +23,9 @@ event SetClientData{
     data: string
 }
 
+event GetDummyData{
+    from: Server,
+    type: Reliable,
+    call: ManySync,
+    data: (string,buffer,string,buffer,string,buffer)
+}

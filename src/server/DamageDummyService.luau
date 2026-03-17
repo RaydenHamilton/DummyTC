@@ -1,5 +1,4 @@
 --// Services
-local FeatureRestrictionManager = game:GetService("FeatureRestrictionManager")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 

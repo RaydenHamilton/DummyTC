@@ -197,6 +197,36 @@ function SerdesFunctions.WriteEVENT_SetClientData(Value: string): ()
 	buffer.writestring(SendBuffer, SendOffset, Value, Length)
 end
 
+function SerdesFunctions.WriteEVENT_GetDummyData(Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer): ()
+	-- Allocate BLOCK: 13 bytes
+	local BLOCK_START = Allocate(13)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 3)
+	local Length = #Value1
+	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value1, Length)
+	local Length = buffer.len(Value2)
+	buffer.writeu16(SendBuffer, BLOCK_START + 3, Length)
+	Allocate(Length)
+	buffer.copy(SendBuffer, SendOffset, Value2, 0, Length)
+	local Length = #Value3
+	buffer.writeu16(SendBuffer, BLOCK_START + 5, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value3, Length)
+	local Length = buffer.len(Value4)
+	buffer.writeu16(SendBuffer, BLOCK_START + 7, Length)
+	Allocate(Length)
+	buffer.copy(SendBuffer, SendOffset, Value4, 0, Length)
+	local Length = #Value5
+	buffer.writeu16(SendBuffer, BLOCK_START + 9, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value5, Length)
+	local Length = buffer.len(Value6)
+	buffer.writeu16(SendBuffer, BLOCK_START + 11, Length)
+	Allocate(Length)
+	buffer.copy(SendBuffer, SendOffset, Value6, 0, Length)
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
@@ -207,6 +237,12 @@ if not RunService:IsRunning() then
 		On = NOOP
 	},
 	SetClientData = {
+		Fire = NOOP,
+		FireAll = NOOP,
+		FireList = NOOP,
+		FireExcept = NOOP
+	},
+	GetDummyData = {
 		Fire = NOOP,
 		FireAll = NOOP,
 		FireList = NOOP,
@@ -382,6 +418,52 @@ local Returns = table.freeze({
 		FireExcept = function(Except: Player, Value: string): ()
 			Load()
 			SerdesFunctions.WriteEVENT_SetClientData(Value)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in Players:GetPlayers() do
+				if Player == Except then
+					continue
+				end
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
+	},
+	GetDummyData = {
+		Fire = function(Player: Player, Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer): ()
+			Load(PlayersMap[Player])
+			SerdesFunctions.WriteEVENT_GetDummyData(Value1, Value2, Value3, Value4, Value5, Value6)
+			PlayersMap[Player] = Save()
+		end,
+		FireAll = function(Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GetDummyData(Value1, Value2, Value3, Value4, Value5, Value6)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in Players:GetPlayers() do
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
+		FireList = function(List: {Player}, Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GetDummyData(Value1, Value2, Value3, Value4, Value5, Value6)
+			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+			for _, Player in List do
+				Load(PlayersMap[Player])
+				local Position = Allocate(Size)
+				buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+				table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+				PlayersMap[Player] = Save()
+			end
+		end,
+		FireExcept = function(Except: Player, Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer): ()
+			Load()
+			SerdesFunctions.WriteEVENT_GetDummyData(Value1, Value2, Value3, Value4, Value5, Value6)
 			local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
 			for _, Player in Players:GetPlayers() do
 				if Player == Except then
