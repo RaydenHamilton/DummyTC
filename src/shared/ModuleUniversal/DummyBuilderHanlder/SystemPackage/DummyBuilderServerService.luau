@@ -1,5 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextChatService = game:GetService("TextChatService")
+local TouchInputService = game:GetService("TouchInputService")
 local server = require(ReplicatedStorage.Blink.server)
 local playerData = require(script.Parent.Parent.Parent.PlayerDataHanlder.SystemPackage.PlayerDataServerService)
 
@@ -17,10 +19,21 @@ local function getPlayerData(player: Player)
 	-- server.GetDummyData.Fire(player, DummyName, DummyBuffer,DummyName, DummyBuffer,DummyName, DummyBuffer)
 end
 
+local function buyDummyPart(player, partName)
+	local newdata = playerData.get(player, "Dummys")
+	if not newdata["NormalDummy"] then
+		newdata["NormalDummy"] = {}
+	end
+	newdata["NormalDummy"][partName] = true
+	playerData.set(player, "Dummys", newdata)
+end
+
 function DummyBuilderServer.init()
-	Players.PlayerAdded:Connect(function(player)
-		getPlayerData(player)
-	end)
+	server.BuyDummyPart.On(buyDummyPart)
+
+	-- Players.PlayerAdded:Connect(function(player)
+	-- 	getPlayerData(player)
+	-- end)
 end
 
 return DummyBuilderServer

@@ -29,3 +29,10 @@ event GetDummyData{
     call: ManySync,
     data: (string,buffer,string,buffer,string,buffer)
 }
+
+event BuyDummyPart{
+    from: Client,
+    type: Reliable,
+    call: SingleSync,
+    data: string
+}

@@ -163,6 +163,7 @@ local SerdesEvent = "?"
 local SerdesThread: thread?
 Queue.Reliable[0] = table.create(256)
 Queue.Reliable[1] = table.create(256)
+Queue.Reliable[4] = table.create(256)
 function SerdesFunctions.ReadEVENT_PlaceBuild(): (CFrame, string)
 	-- Read BLOCK: 26 bytes
 	local BLOCK_START = Read(26)
@@ -227,6 +228,14 @@ function SerdesFunctions.WriteEVENT_GetDummyData(Value1: string, Value2: buffer,
 	buffer.copy(SendBuffer, SendOffset, Value6, 0, Length)
 end
 
+function SerdesFunctions.ReadEVENT_BuyDummyPart(): (string)
+	-- Read BLOCK: 2 bytes
+	local BLOCK_START = Read(2)
+	local Length = buffer.readu16(RecieveBuffer, BLOCK_START + 0)
+	local Value = buffer.readstring(RecieveBuffer, Read(Length), Length)
+	return Value
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
@@ -247,6 +256,9 @@ if not RunService:IsRunning() then
 		FireAll = NOOP,
 		FireList = NOOP,
 		FireExcept = NOOP
+	},
+	BuyDummyPart = {
+		On = NOOP
 	},
 	})
 	return Returns :: BLINK_EVENTS_SYMBOL
@@ -331,6 +343,17 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 					warn("[Blink]: Event queue of \"RemoveBuild\" exceeded 256, did you forget to implement a listener?")
 				end
 				table.insert(Queue.Reliable[1], {Player, Value} :: {any})
+			end
+		elseif Index == 4 then
+			local Value: string = SerdesFunctions.ReadEVENT_BuyDummyPart()
+			if Events.Reliable[4] ~= nil then
+				SerdesEvent = "BuyDummyPart"
+				Events.Reliable[4](Player, Value)
+			else
+				if #Queue.Reliable[4] > 256 then
+					warn("[Blink]: Event queue of \"BuyDummyPart\" exceeded 256, did you forget to implement a listener?")
+				end
+				table.insert(Queue.Reliable[4], {Player, Value} :: {any})
 			end
 		end
 	end
@@ -476,6 +499,20 @@ local Returns = table.freeze({
 				PlayersMap[Player] = Save()
 			end
 		end,
+	},
+	BuyDummyPart = {
+		On = function(Listener: (Player: Player, Value: string) -> ()): () -> ()
+			Events.Reliable[4] = Listener
+			for Index, Arguments in Queue.Reliable[4] do
+				Listener(table.unpack(Arguments))
+			end
+			Queue.Reliable[4] = {}
+			return function (): ()
+				if Events.Reliable[4] == Listener then
+					Events.Reliable[4] = nil
+				end
+			end
+		end
 	},
 })
 type BLINK_EVENTS_SYMBOL = typeof(Returns)

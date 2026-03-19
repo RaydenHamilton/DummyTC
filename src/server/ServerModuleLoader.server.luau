@@ -19,10 +19,10 @@ local conveyor = require(script.Parent.ConveyorService)
 local dummySpawner = require(script.Parent.DummySpawnerService)
 local collecter = require(script.Parent.Collecter)
 
-dummySpawner.new(-346, 0.25, 34)
 damagePart.new()
 conveyor.new()
 
 Players.PlayerAdded:Connect(function(player)
 	collecter.new(player, Workspace.Base.Builds.killpart)
+	dummySpawner.init(player, -346, 0.25, 34)
 end)

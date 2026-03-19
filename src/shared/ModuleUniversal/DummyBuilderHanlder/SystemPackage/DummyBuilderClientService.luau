@@ -1,6 +1,7 @@
 --// Services
 local CreationDBService = game:GetService("CreationDBService")
 local Players = game:GetService("Players")
+local RemoteCursorService = game:GetService("RemoteCursorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -82,11 +83,14 @@ local function getDummyData(...)
 	end
 end
 
+local function canBuyPart()
+	return true
+end
+
 local function createBuyButton(partName: string)
 	local Part: BasePart = shop["dummy parts"][partName]
 	local buyPart = Instance.new("Part")
 
-	print()
 	local first = partName:sub(partName:len() - 1, partName:len() - 1)
 	local second = partName:sub(partName:len(), partName:len())
 
@@ -150,10 +154,13 @@ local function createBuyButton(partName: string)
 		leaveTween:Play()
 	end)
 	buyButton.MouseButton1Click:Connect(function()
-		makeNextPartBuyable(Part, buyPart)
-		Part.Transparency = 0
-		Part.Color = Part:GetAttribute("Color") :: Color3
-		buyPart:Destroy()
+		if canBuyPart() then
+			makeNextPartBuyable(Part, buyPart)
+			Part.Transparency = 0
+			Part.Color = Part:GetAttribute("Color") :: Color3
+			buyPart:Destroy()
+			client.BuyDummyPart.Fire(partName)
+		end
 	end)
 end
 

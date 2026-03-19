@@ -218,6 +218,16 @@ function SerdesFunctions.ReadEVENT_GetDummyData(): (string, buffer, string, buff
 	return Value1, Value2, Value3, Value4, Value5, Value6
 end
 
+function SerdesFunctions.WriteEVENT_BuyDummyPart(Value: string): ()
+	-- Allocate BLOCK: 3 bytes
+	local BLOCK_START = Allocate(3)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 4)
+	local Length = #Value
+	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value, Length)
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
@@ -232,6 +242,9 @@ if not RunService:IsRunning() then
 	},
 	GetDummyData = {
 		On = NOOP
+	},
+	BuyDummyPart = {
+		Fire = NOOP
 	},
 	})
 	return Returns :: BLINK_EVENTS_SYMBOL
@@ -364,6 +377,11 @@ local Returns = table.freeze({
 					table.remove(Events.Reliable[3], Index)
 				end
 			end
+		end
+	},
+	BuyDummyPart = {
+		Fire = function(Value: string): ()
+			SerdesFunctions.WriteEVENT_BuyDummyPart(Value)
 		end
 	},
 })
