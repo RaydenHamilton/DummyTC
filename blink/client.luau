@@ -162,8 +162,8 @@ local SerdesEvent = "?"
 local SerdesThread: thread?
 Events.Reliable[2] = {}
 Queue.Reliable[2] = table.create(256)
-Events.Reliable[3] = {}
-Queue.Reliable[3] = table.create(256)
+Events.Reliable[4] = {}
+Queue.Reliable[4] = table.create(256)
 function SerdesFunctions.WriteEVENT_PlaceBuild(Value1: CFrame, Value2: string): ()
 	-- Allocate BLOCK: 27 bytes
 	local BLOCK_START = Allocate(27)
@@ -197,31 +197,31 @@ function SerdesFunctions.ReadEVENT_SetClientData(): (string)
 	return Value
 end
 
-function SerdesFunctions.ReadEVENT_GetDummyData(): (string, buffer, string, buffer, string, buffer)
-	-- Read BLOCK: 12 bytes
-	local BLOCK_START = Read(12)
+function SerdesFunctions.WriteEVENT_SendRequestForDummyData(Value: string): ()
+	-- Allocate BLOCK: 3 bytes
+	local BLOCK_START = Allocate(3)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 3)
+	local Length = #Value
+	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value, Length)
+end
+
+function SerdesFunctions.ReadEVENT_RespondRequestToClientRequestForDummyData(): (string, buffer)
+	-- Read BLOCK: 4 bytes
+	local BLOCK_START = Read(4)
 	local Length = buffer.readu16(RecieveBuffer, BLOCK_START + 0)
 	local Value1 = buffer.readstring(RecieveBuffer, Read(Length), Length)
 	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 2)
 	local Value2 = buffer.create(Length)
 	buffer.copy(Value2, 0, RecieveBuffer, Read(Length), Length)
-	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 4)
-	local Value3 = buffer.readstring(RecieveBuffer, Read(Length), Length)
-	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 6)
-	local Value4 = buffer.create(Length)
-	buffer.copy(Value4, 0, RecieveBuffer, Read(Length), Length)
-	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 8)
-	local Value5 = buffer.readstring(RecieveBuffer, Read(Length), Length)
-	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 10)
-	local Value6 = buffer.create(Length)
-	buffer.copy(Value6, 0, RecieveBuffer, Read(Length), Length)
-	return Value1, Value2, Value3, Value4, Value5, Value6
+	return Value1, Value2
 end
 
 function SerdesFunctions.WriteEVENT_BuyDummyPart(Value: string): ()
 	-- Allocate BLOCK: 3 bytes
 	local BLOCK_START = Allocate(3)
-	buffer.writeu8(SendBuffer, BLOCK_START + 0, 4)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 5)
 	local Length = #Value
 	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
 	Allocate(Length)
@@ -240,7 +240,10 @@ if not RunService:IsRunning() then
 	SetClientData = {
 		On = NOOP
 	},
-	GetDummyData = {
+	SendRequestForDummyData = {
+		Fire = NOOP
+	},
+	RespondRequestToClientRequestForDummyData = {
 		On = NOOP
 	},
 	BuyDummyPart = {
@@ -301,18 +304,18 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 				end
 				table.insert(Queue.Reliable[2], {Value} :: {any})
 			end
-		elseif Index == 3 then
-			local Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer = SerdesFunctions.ReadEVENT_GetDummyData()
-			if #Events.Reliable[3] > 0 then
-				for _, Listener in Events.Reliable[3] do
-					SerdesEvent = "GetDummyData"
-					Listener(Value1, Value2, Value3, Value4, Value5, Value6)
+		elseif Index == 4 then
+			local Value1: string, Value2: buffer = SerdesFunctions.ReadEVENT_RespondRequestToClientRequestForDummyData()
+			if #Events.Reliable[4] > 0 then
+				for _, Listener in Events.Reliable[4] do
+					SerdesEvent = "RespondRequestToClientRequestForDummyData"
+					Listener(Value1, Value2)
 				end
 			else
-				if #Queue.Reliable[3] > 256 then
-					warn("[Blink]: Event queue of \"GetDummyData\" exceeded 256, did you forget to implement a listener?")
+				if #Queue.Reliable[4] > 256 then
+					warn("[Blink]: Event queue of \"RespondRequestToClientRequestForDummyData\" exceeded 256, did you forget to implement a listener?")
 				end
-				table.insert(Queue.Reliable[3], {Value1, Value2, Value3, Value4, Value5, Value6} :: {any})
+				table.insert(Queue.Reliable[4], {Value1, Value2} :: {any})
 			end
 		end
 	end
@@ -364,17 +367,22 @@ local Returns = table.freeze({
 			end
 		end
 	},
-	GetDummyData = {
-		On = function(Listener: (Value1: string, Value2: buffer, Value3: string, Value4: buffer, Value5: string, Value6: buffer) -> ()): () -> ()
-			table.insert(Events.Reliable[3], Listener)
-			for Index, Arguments in Queue.Reliable[3] do
+	SendRequestForDummyData = {
+		Fire = function(Value: string): ()
+			SerdesFunctions.WriteEVENT_SendRequestForDummyData(Value)
+		end
+	},
+	RespondRequestToClientRequestForDummyData = {
+		On = function(Listener: (Value1: string, Value2: buffer) -> ()): () -> ()
+			table.insert(Events.Reliable[4], Listener)
+			for Index, Arguments in Queue.Reliable[4] do
 				Listener(table.unpack(Arguments))
 			end
-			Queue.Reliable[3] = {}
+			Queue.Reliable[4] = {}
 			return function (): ()
-				local Index = table.find(Events.Reliable[3], Listener)
+				local Index = table.find(Events.Reliable[4], Listener)
 				if Index ~= nil then
-					table.remove(Events.Reliable[3], Index)
+					table.remove(Events.Reliable[4], Index)
 				end
 			end
 		end

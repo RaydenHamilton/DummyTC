@@ -23,11 +23,18 @@ event SetClientData{
     data: string
 }
 
-event GetDummyData{
+event SendRequestForDummyData{
+    from: Client,
+    type: Reliable,
+    call: ManySync,
+    data: string
+}
+
+event RespondRequestToClientRequestForDummyData{
     from: Server,
     type: Reliable,
     call: ManySync,
-    data: (string,buffer,string,buffer,string,buffer)
+    data: (string,buffer)
 }
 
 event BuyDummyPart{
@@ -36,3 +43,4 @@ event BuyDummyPart{
     call: SingleSync,
     data: string
 }
+

@@ -1,5 +1,6 @@
 --// Services
 local CreationDBService = game:GetService("CreationDBService")
+local PartyEmulatorService = game:GetService("PartyEmulatorService")
 local Players = game:GetService("Players")
 local RemoteCursorService = game:GetService("RemoteCursorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -7,7 +8,10 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 --// Modueles
+local DummyBuilderSharedService = require(script.Parent.DummyBuilderSharedService)
 local client = require(ReplicatedStorage.Blink.client)
+local BuildSharedService =
+	require(ReplicatedStorage.Shared.ModuleUniversal.BuildHandler.SystemPackage.BuildSharedService)
 
 --// Module
 local DummyBuilderClient = {}
@@ -73,16 +77,6 @@ local dummyBuildOrder = {
 }
 
 --// Functions
-local function getDummyData(...)
-	local tempData = { ... }
-	for i in tempData do
-		if i % 2 == 0 then
-			continue
-		end
-		dummyData[tempData[i]] = tempData[i + 1]
-	end
-end
-
 local function canBuyPart()
 	return true
 end
@@ -172,7 +166,7 @@ end
 
 local function makeDummyBuyable()
 	if not dummyData["NormalDummy"] then
-		createBuyButton("Torso 2")
+		client.SendRequestForDummyData.Fire("NormalDummy")
 	end
 end
 
@@ -202,8 +196,25 @@ local function moveCameraToPlayer()
 	PlayerCamera.FieldOfView = 70
 end
 
+local function setupDummy(dummyName, dummybuffer)
+	for index, partName in DummyBuilderSharedService.DummyLimbs do
+		local enabled = buffer.readi8(dummybuffer, index)
+		dummyData[dummyName][partName] = enabled == 1 or false
+	end
+
+	for partNameIndex, nextPartTable in dummyBuildOrder do
+		if dummyData[dummyName][partNameIndex] == true then
+			for _, nextPart in nextPartTable do
+				if not dummyData[dummyName][nextPart] then
+					createBuyButton(nextPart)
+				end
+			end
+		end
+	end
+end
+
 function DummyBuilderClient.init()
-	client.GetDummyData.On(getDummyData)
+	client.RespondRequestToClientRequestForDummyData.On(setupDummy)
 	moveCameraToShop()
 	buildDummy()
 end
