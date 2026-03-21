@@ -46,6 +46,7 @@ DummyBuilderShared.DummyLimbs = {
 
 	"Torso 1",
 	"Torso 2",
+	"Torso 3",
 
 	"Waist 1",
 	"Waist 2",

@@ -1,8 +1,5 @@
 --// Services
-local CreationDBService = game:GetService("CreationDBService")
-local PartyEmulatorService = game:GetService("PartyEmulatorService")
 local Players = game:GetService("Players")
-local RemoteCursorService = game:GetService("RemoteCursorService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -10,8 +7,6 @@ local Workspace = game:GetService("Workspace")
 --// Modueles
 local DummyBuilderSharedService = require(script.Parent.DummyBuilderSharedService)
 local client = require(ReplicatedStorage.Blink.client)
-local BuildSharedService =
-	require(ReplicatedStorage.Shared.ModuleUniversal.BuildHandler.SystemPackage.BuildSharedService)
 
 --// Module
 local DummyBuilderClient = {}
@@ -170,16 +165,6 @@ local function makeDummyBuyable()
 	end
 end
 
-local function buildDummy()
-	for _, part: BasePart in shop["dummy parts"]:GetChildren() do
-		part:SetAttribute("Color", part.Color)
-		part.Transparency = 0.4
-		part.Color = Color3.new(0, 0, 1)
-	end
-
-	makeDummyBuyable()
-end
-
 local function moveCameraToShop()
 	local PlayerCamera = Workspace.CurrentCamera
 
@@ -196,27 +181,48 @@ local function moveCameraToPlayer()
 	PlayerCamera.FieldOfView = 70
 end
 
-local function setupDummy(dummyName, dummybuffer)
-	for index, partName in DummyBuilderSharedService.DummyLimbs do
-		local enabled = buffer.readi8(dummybuffer, index)
-		dummyData[dummyName][partName] = enabled == 1 or false
-	end
+local function enablePart(partName)
+	print(partName)
+	shop["dummy parts"][partName].Transparency = 0
+	shop["dummy parts"][partName].Color = shop["dummy parts"][partName]:GetAttribute("Color") :: Color3
+end
 
-	for partNameIndex, nextPartTable in dummyBuildOrder do
-		if dummyData[dummyName][partNameIndex] == true then
-			for _, nextPart in nextPartTable do
-				if not dummyData[dummyName][nextPart] then
-					createBuyButton(nextPart)
+local function loadDummy(dummyName)
+	if dummyData[dummyName]["Torso 2"] == true then
+		for partNameIndex, nextPartTable in dummyBuildOrder do
+			if dummyData[dummyName][partNameIndex] == true then
+				enablePart(partNameIndex)
+				for _, nextPart in nextPartTable do
+					if not dummyData[dummyName][nextPart] then
+						createBuyButton(nextPart)
+					end
 				end
 			end
 		end
+	else
+		createBuyButton("Torso 2")
 	end
+end
+
+local function readBufferAndSetData(dummyName, dummybuffer)
+	dummyData[dummyName] = {}
+	for index, partName in DummyBuilderSharedService.DummyLimbs do
+		local enabled = buffer.readi8(dummybuffer, index - 1)
+		dummyData[dummyName][partName] = (enabled == 1) or false
+	end
+end
+
+local function setupDummy(dummyName, dummybuffer)
+	readBufferAndSetData(dummyName, dummybuffer)
+	loadDummy(dummyName)
 end
 
 function DummyBuilderClient.init()
 	client.RespondRequestToClientRequestForDummyData.On(setupDummy)
+	client.SendRequestForDummyData.Fire("NormalDummy")
 	moveCameraToShop()
-	buildDummy()
+
+	--TODO go on github and get the code i deleted that sets the color of the parts
 end
 
 return DummyBuilderClient
