@@ -39,7 +39,6 @@ function DummySpawner:SetUpDummyClone(player): Model
 				basePart:SetAttribute("Burns", 0)
 				basePart:SetAttribute("MaxBurns", 10)
 			else
-				print(basePart)
 				basePart:Destroy()
 			end
 		end

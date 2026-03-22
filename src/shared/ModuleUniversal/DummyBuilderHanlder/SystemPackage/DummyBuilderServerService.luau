@@ -12,7 +12,6 @@ local function makeDummyDataToBuffer(data)
 	for index, partName in DummyBuilderSharedService.DummyLimbs do
 		local partEnabled = data[partName]
 		buffer.writei8(dummyBuffer, index - 1, partEnabled and 1 or 0)
-		print(`{partName}: {partEnabled and 1 or 0}`)
 	end
 
 	return dummyBuffer

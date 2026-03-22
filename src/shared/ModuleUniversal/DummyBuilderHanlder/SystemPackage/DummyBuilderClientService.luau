@@ -159,12 +159,6 @@ function makeNextPartBuyable(Part: BasePart, UI: BasePart)
 	end
 end
 
-local function makeDummyBuyable()
-	if not dummyData["NormalDummy"] then
-		client.SendRequestForDummyData.Fire("NormalDummy")
-	end
-end
-
 local function moveCameraToShop()
 	local PlayerCamera = Workspace.CurrentCamera
 
@@ -182,7 +176,6 @@ local function moveCameraToPlayer()
 end
 
 local function enablePart(partName)
-	print(partName)
 	shop["dummy parts"][partName].Transparency = 0
 	shop["dummy parts"][partName].Color = shop["dummy parts"][partName]:GetAttribute("Color") :: Color3
 end
@@ -216,13 +209,19 @@ local function setupDummy(dummyName, dummybuffer)
 	readBufferAndSetData(dummyName, dummybuffer)
 	loadDummy(dummyName)
 end
-
+local function buildDummy()
+	for _, part: BasePart in shop["dummy parts"]:GetChildren() do
+		part:SetAttribute("Color", part.Color)
+		part.Transparency = 0.4
+		part.Color = Color3.new(0, 0, 1)
+	end
+end
 function DummyBuilderClient.init()
 	client.RespondRequestToClientRequestForDummyData.On(setupDummy)
 	client.SendRequestForDummyData.Fire("NormalDummy")
 	moveCameraToShop()
 
-	--TODO go on github and get the code i deleted that sets the color of the parts
+	buildDummy()
 end
 
 return DummyBuilderClient
