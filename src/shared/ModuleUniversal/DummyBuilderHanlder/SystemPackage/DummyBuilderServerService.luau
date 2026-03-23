@@ -28,19 +28,19 @@ local function sendPlayerDataBackToClient(player: Player, dummyName)
 	server.RespondRequestToClientRequestForDummyData.Fire(player, dummyName, dataForPlayer)
 end
 
-local function setClientPlayerData(player: Player, partName)
+local function setClientPlayerData(player: Player,dummyName, partName)
 	local newdata = PlayerDataServerService.get(player, "Dummys")
 
-	if not newdata["NormalDummy"] then
-		newdata["NormalDummy"] = {}
+	if not newdata[dummyName] then
+		newdata[dummyName] = {}
 	end
-	newdata["NormalDummy"][partName] = true
+	newdata[dummyName][partName] = true
 
 	PlayerDataServerService.set(player, "Dummys", newdata)
 end
 
-local function buyDummyPart(player, partName)
-	setClientPlayerData(player, partName)
+local function buyDummyPart(player,dummyName, partName)
+	setClientPlayerData(player,dummyName, partName)
 end
 
 function DummyBuilderServer.init()

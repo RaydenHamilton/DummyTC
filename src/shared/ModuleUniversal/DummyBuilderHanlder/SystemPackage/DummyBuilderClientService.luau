@@ -148,7 +148,7 @@ local function createBuyButton(partName: string)
 			Part.Transparency = 0
 			Part.Color = Part:GetAttribute("Color") :: Color3
 			buyPart:Destroy()
-			client.BuyDummyPart.Fire(partName)
+			client.BuyDummyPart.Fire("NormalDummy",partName)
 		end
 	end)
 end

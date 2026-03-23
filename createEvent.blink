@@ -32,13 +32,15 @@ event SendRequestForDummyData{
 
 event RespondRequestToClientRequestForDummyData{
     from: Server,
-    type: Reliable, call: ManySync, data: (string,buffer)
+    type: Reliable, 
+    call: ManySync, 
+    data: (string,buffer)
 }
 
 event BuyDummyPart{
-
+    from: Client,
     type: Reliable,
     call: SingleSync,
-     data: string,string
+    data: (string,string)
 }
 

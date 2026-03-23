@@ -1,3 +1,0 @@
-local PlayerDataShared = {}
-
-return PlayerDataShared

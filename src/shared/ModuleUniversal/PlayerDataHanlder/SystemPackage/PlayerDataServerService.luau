@@ -21,9 +21,12 @@ function PlayerDataServer.init(newTemplate: { any })
 	end
 end
 
-function PlayerDataServer.set(player: Player, valueName: string, NewValue: any)
+function PlayerDataServer.set(player: Player, valueName: string, NewValue: {}| number)
+
 	if Profiles[player] then
 		Profiles[player]["Data"][valueName] = NewValue
+	else
+		warn("failed to set player data")
 	end
 end
 

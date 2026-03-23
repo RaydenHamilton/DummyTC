@@ -218,14 +218,18 @@ function SerdesFunctions.ReadEVENT_RespondRequestToClientRequestForDummyData(): 
 	return Value1, Value2
 end
 
-function SerdesFunctions.WriteEVENT_BuyDummyPart(Value: string): ()
-	-- Allocate BLOCK: 3 bytes
-	local BLOCK_START = Allocate(3)
+function SerdesFunctions.WriteEVENT_BuyDummyPart(Value1: string, Value2: string): ()
+	-- Allocate BLOCK: 5 bytes
+	local BLOCK_START = Allocate(5)
 	buffer.writeu8(SendBuffer, BLOCK_START + 0, 5)
-	local Length = #Value
+	local Length = #Value1
 	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
 	Allocate(Length)
-	buffer.writestring(SendBuffer, SendOffset, Value, Length)
+	buffer.writestring(SendBuffer, SendOffset, Value1, Length)
+	local Length = #Value2
+	buffer.writeu16(SendBuffer, BLOCK_START + 3, Length)
+	Allocate(Length)
+	buffer.writestring(SendBuffer, SendOffset, Value2, Length)
 end
 
 if not RunService:IsRunning() then
@@ -388,8 +392,8 @@ local Returns = table.freeze({
 		end
 	},
 	BuyDummyPart = {
-		Fire = function(Value: string): ()
-			SerdesFunctions.WriteEVENT_BuyDummyPart(Value)
+		Fire = function(Value1: string, Value2: string): ()
+			SerdesFunctions.WriteEVENT_BuyDummyPart(Value1, Value2)
 		end
 	},
 })

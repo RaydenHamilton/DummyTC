@@ -222,12 +222,14 @@ function SerdesFunctions.WriteEVENT_RespondRequestToClientRequestForDummyData(Va
 	buffer.copy(SendBuffer, SendOffset, Value2, 0, Length)
 end
 
-function SerdesFunctions.ReadEVENT_BuyDummyPart(): (string)
-	-- Read BLOCK: 2 bytes
-	local BLOCK_START = Read(2)
+function SerdesFunctions.ReadEVENT_BuyDummyPart(): (string, string)
+	-- Read BLOCK: 4 bytes
+	local BLOCK_START = Read(4)
 	local Length = buffer.readu16(RecieveBuffer, BLOCK_START + 0)
-	local Value = buffer.readstring(RecieveBuffer, Read(Length), Length)
-	return Value
+	local Value1 = buffer.readstring(RecieveBuffer, Read(Length), Length)
+	Length = buffer.readu16(RecieveBuffer, BLOCK_START + 2)
+	local Value2 = buffer.readstring(RecieveBuffer, Read(Length), Length)
+	return Value1, Value2
 end
 
 if not RunService:IsRunning() then
@@ -355,15 +357,15 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 				table.insert(Queue.Reliable[3], {Player, Value} :: {any})
 			end
 		elseif Index == 5 then
-			local Value: string = SerdesFunctions.ReadEVENT_BuyDummyPart()
+			local Value1: string, Value2: string = SerdesFunctions.ReadEVENT_BuyDummyPart()
 			if Events.Reliable[5] ~= nil then
 				SerdesEvent = "BuyDummyPart"
-				Events.Reliable[5](Player, Value)
+				Events.Reliable[5](Player, Value1, Value2)
 			else
 				if #Queue.Reliable[5] > 256 then
 					warn("[Blink]: Event queue of \"BuyDummyPart\" exceeded 256, did you forget to implement a listener?")
 				end
-				table.insert(Queue.Reliable[5], {Player, Value} :: {any})
+				table.insert(Queue.Reliable[5], {Player, Value1, Value2} :: {any})
 			end
 		end
 	end
@@ -526,7 +528,7 @@ local Returns = table.freeze({
 		end,
 	},
 	BuyDummyPart = {
-		On = function(Listener: (Player: Player, Value: string) -> ()): () -> ()
+		On = function(Listener: (Player: Player, Value1: string, Value2: string) -> ()): () -> ()
 			Events.Reliable[5] = Listener
 			for Index, Arguments in Queue.Reliable[5] do
 				Listener(table.unpack(Arguments))
