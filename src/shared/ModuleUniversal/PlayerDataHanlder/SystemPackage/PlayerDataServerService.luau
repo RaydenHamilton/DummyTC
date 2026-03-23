@@ -13,7 +13,7 @@ local PlayerStore
 local Profiles = {}
 
 function PlayerDataServer.init(newTemplate: { any })
-	PlayerStore = ProfileStore.New("Test2", newTemplate)
+	PlayerStore = ProfileStore.New("test4", newTemplate)
 	Profiles = Profiles :: { [Player]: typeof(PlayerStore:StartSessionAsync()) }
 
 	for _, player in Players:GetPlayers() do

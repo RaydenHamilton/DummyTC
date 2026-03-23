@@ -28,7 +28,7 @@ end
 function DummySpawner:SetUpDummyClone(player): Model
 	local ClonedDummy = self.Dummy:Clone()
 
-	local allowedParts = PlayerDataServerService.get(player, "Dummys")[ClonedDummy.Name]
+	local allowedParts = PlayerDataServerService.get(player, "Dummys")[ClonedDummy.Name] or {}
 
 	for _, basePart: BasePart in ClonedDummy:GetChildren() do
 		if basePart:IsA("BasePart") then
