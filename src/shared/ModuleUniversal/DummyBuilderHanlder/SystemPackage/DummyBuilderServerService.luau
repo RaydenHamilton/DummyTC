@@ -20,6 +20,9 @@ end
 local function sendPlayerDataBackToClient(player: Player, dummyName)
 	local dummysData = PlayerDataServerService.get(player, "Dummys")
 	local dummyData = dummysData[dummyName]
+	if not dummyData then
+		dummyData = {}
+	end
 	local dataForPlayer = makeDummyDataToBuffer(dummyData)
 
 	server.RespondRequestToClientRequestForDummyData.Fire(player, dummyName, dataForPlayer)

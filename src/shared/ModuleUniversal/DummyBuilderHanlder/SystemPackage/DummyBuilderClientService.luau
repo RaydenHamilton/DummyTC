@@ -159,7 +159,7 @@ function makeNextPartBuyable(Part: BasePart, UI: BasePart)
 	end
 end
 
-local function moveCameraToShop()
+function DummyBuilderClient.moveCameraToShop()
 	local PlayerCamera = Workspace.CurrentCamera
 
 	PlayerCamera.CameraType = Enum.CameraType.Scriptable
@@ -167,7 +167,7 @@ local function moveCameraToShop()
 	PlayerCamera.FieldOfView = 60
 end
 
-local function moveCameraToPlayer()
+function DummyBuilderClient.moveCameraToPlayer()
 	local PlayerCamera = Workspace.CurrentCamera
 
 	PlayerCamera.CameraType = Enum.CameraType.Custom
@@ -219,7 +219,6 @@ end
 function DummyBuilderClient.init()
 	client.RespondRequestToClientRequestForDummyData.On(setupDummy)
 	client.SendRequestForDummyData.Fire("NormalDummy")
-	moveCameraToShop()
 
 	buildDummy()
 end
