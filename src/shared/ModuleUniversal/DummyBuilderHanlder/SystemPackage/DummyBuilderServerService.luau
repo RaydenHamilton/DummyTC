@@ -19,6 +19,7 @@ end
 
 local function sendPlayerDataBackToClient(player: Player, dummyName)
 	local dummysData = PlayerDataServerService.get(player, "Dummys")
+	print(dummysData)
 	local dummyData = dummysData[dummyName]
 	if not dummyData then
 		dummyData = {}
@@ -28,7 +29,7 @@ local function sendPlayerDataBackToClient(player: Player, dummyName)
 	server.RespondRequestToClientRequestForDummyData.Fire(player, dummyName, dataForPlayer)
 end
 
-local function setClientPlayerData(player: Player,dummyName, partName)
+local function setClientPlayerData(player: Player, dummyName, partName)
 	local newdata = PlayerDataServerService.get(player, "Dummys")
 
 	if not newdata[dummyName] then
@@ -39,8 +40,8 @@ local function setClientPlayerData(player: Player,dummyName, partName)
 	PlayerDataServerService.set(player, "Dummys", newdata)
 end
 
-local function buyDummyPart(player,dummyName, partName)
-	setClientPlayerData(player,dummyName, partName)
+local function buyDummyPart(player, dummyName, partName)
+	setClientPlayerData(player, dummyName, partName)
 end
 
 function DummyBuilderServer.init()

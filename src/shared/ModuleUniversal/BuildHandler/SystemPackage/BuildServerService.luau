@@ -15,11 +15,11 @@ function BuildServer.init()
 end
 
 local function addBuildToPlayerData(player: Player, name: string, cframe: CFrame)
-	local offset = Workspace:WaitForChild("Map"):WaitForChild("Baseplate").Position
+	local offset = Workspace.Bases[player.UserId].Base.Position
 	local newCFrame = cframe - offset + Vector3.new(0, offset.Y, 0)
 
 	local playerBuilds = playerData.get(player, "Builds")
-	local index = buildSharedService.getIndexString(cframe, name)
+	local index = buildSharedService.getIndexString(player, cframe, name)
 	playerBuilds[index] = { name, { newCFrame:GetComponents() } }
 
 	playerData.set(player, "Builds", playerBuilds)
@@ -34,7 +34,7 @@ end
 
 function BuildServer.new(player: Player, objectCFrame: CFrame, objectName: string)
 	local playerBuilds = playerData.get(player, "Builds")
-	local index = buildSharedService.getIndexString(objectCFrame, objectName)
+	local index = buildSharedService.getIndexString(player, objectCFrame, objectName)
 
 	if not playerBuilds[index] then
 		addBuild(player, objectName, objectCFrame)
@@ -48,7 +48,7 @@ end
 
 local function removeBuildFromData(player, build: BasePart)
 	local playerBuilds = playerData.get(player, "Builds")
-	local index = buildSharedService.getIndexString(build.CFrame, build.Name)
+	local index = buildSharedService.getIndexString(player, build.CFrame, build.Name)
 
 	if not playerBuilds[index] then
 		warn("Build data not found")
@@ -80,7 +80,7 @@ function BuildServer.playerAdded(player: Player)
 	until playerData.get(player, "Builds")
 	local playerBuilds = playerData.get(player, "Builds")
 
-	local offset = Workspace:WaitForChild("Map"):WaitForChild("Baseplate").Position
+	local offset = Workspace.Bases[player.UserId].Base.Position
 
 	for _, buildData in playerBuilds do
 		local name = buildData[1]

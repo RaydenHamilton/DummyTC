@@ -13,7 +13,7 @@ local PlayerStore
 local Profiles = {}
 
 function PlayerDataServer.init(newTemplate: { any })
-	PlayerStore = ProfileStore.New("test4", newTemplate)
+	PlayerStore = ProfileStore.New("_test", newTemplate)
 	Profiles = Profiles :: { [Player]: typeof(PlayerStore:StartSessionAsync()) }
 
 	for _, player in Players:GetPlayers() do
@@ -21,8 +21,7 @@ function PlayerDataServer.init(newTemplate: { any })
 	end
 end
 
-function PlayerDataServer.set(player: Player, valueName: string, NewValue: {}| number)
-
+function PlayerDataServer.set(player: Player, valueName: string, NewValue: {} | number)
 	if Profiles[player] then
 		Profiles[player]["Data"][valueName] = NewValue
 	else

@@ -55,7 +55,7 @@ local function buildTransparency(number)
 	end
 end
 
-local function clearOldFunction()
+function buildClient.clearOldFunction()
 	if renderStepped then
 		renderStepped:Disconnect()
 	end
@@ -92,7 +92,7 @@ local function getSnapPosition()
 end
 
 local function canMoveThere(snap: CFrame)
-	local index = buildSharedService.getIndexString(snap, newBuild.Name)
+	local index = buildSharedService.getIndexString(player,snap, newBuild.Name)
 	if builds[index] then
 		return false
 	end
@@ -106,7 +106,7 @@ end
 function buildClient.new(objectName: string)
 	local build = ReplicatedStorage.Assets.Builds:FindFirstChild(objectName)
 
-	clearOldFunction()
+	buildClient.clearOldFunction()
 	if not build then
 		warn(`{objectName} does not exist in builds`)
 		return
@@ -150,7 +150,7 @@ local function canRemove(part: BasePart?)
 end
 
 function buildClient.remove()
-	clearOldFunction()
+	buildClient.clearOldFunction()
 	placementState = "Removing"
 	RunService.RenderStepped:Connect(function()
 		local removeAblePart = mouse.Target
@@ -171,7 +171,7 @@ inputs.RemoveBuild.Pressed:Connect(function()
 	if canRemove(targetPart) then
 		removeHighLight.Parent = nil
 		clientEvents.RemoveBuild.Fire(targetPart)
-		local index = buildSharedService.getIndexString(targetPart.CFrame, mouse.Target.Name)
+		local index = buildSharedService.getIndexString(player,targetPart.CFrame, mouse.Target.Name)
 		builds[index] = nil
 	end
 end)
@@ -184,12 +184,12 @@ inputs.PlaceBuild.Pressed:Connect(function()
 		clientEvents.PlaceBuild.Fire(lastSnapped, newBuild.Name)
 	end
 
-	local index = buildSharedService.getIndexString(lastSnapped, newBuild.Name)
+	local index = buildSharedService.getIndexString(player,lastSnapped, newBuild.Name)
 	builds[index] = true
 end)
 
 inputs.ClearBuild.Pressed:Connect(function()
-	clearOldFunction()
+	buildClient.clearOldFunction()
 	placementState = "Idle"
 end)
 
@@ -199,6 +199,7 @@ inputs.RotateBuild.Pressed:Connect(function()
 		if Rotation % 360 == 0 then
 			XOffSet = 6
 			ZOffSet = 0
+			-- Rotation reset
 			Rotation = 0
 		elseif Rotation % 270 == 0 then
 			XOffSet = 0
