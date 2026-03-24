@@ -92,7 +92,7 @@ local function getSnapPosition()
 end
 
 local function canMoveThere(snap: CFrame)
-	local index = buildSharedService.getIndexString(player,snap, newBuild.Name)
+	local index = buildSharedService.getIndexString(player, snap, newBuild.Name)
 	if builds[index] then
 		return false
 	end
@@ -115,6 +115,9 @@ function buildClient.new(objectName: string)
 	newBuild = build:Clone()
 	newBuild.CanCollide = false
 	newBuild.Parent = Workspace
+
+	placementState = "Enabled"
+
 	buildTransparency(0.7)
 	--// Varaibles
 	local gridType = newBuild:GetAttribute("GridType")
@@ -171,7 +174,7 @@ inputs.RemoveBuild.Pressed:Connect(function()
 	if canRemove(targetPart) then
 		removeHighLight.Parent = nil
 		clientEvents.RemoveBuild.Fire(targetPart)
-		local index = buildSharedService.getIndexString(player,targetPart.CFrame, mouse.Target.Name)
+		local index = buildSharedService.getIndexString(player, targetPart.CFrame, mouse.Target.Name)
 		builds[index] = nil
 	end
 end)
@@ -180,11 +183,12 @@ inputs.PlaceBuild.Pressed:Connect(function()
 	if not newBuild or placementState ~= "Enabled" then
 		return
 	end
+
 	if canMoveThere(lastSnapped) then
 		clientEvents.PlaceBuild.Fire(lastSnapped, newBuild.Name)
 	end
 
-	local index = buildSharedService.getIndexString(player,lastSnapped, newBuild.Name)
+	local index = buildSharedService.getIndexString(player, lastSnapped, newBuild.Name)
 	builds[index] = true
 end)
 

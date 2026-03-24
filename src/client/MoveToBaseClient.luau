@@ -17,6 +17,7 @@ local function movePlayer()
 	else
 		rootPart:PivotTo(CFrame.new(0, 10, 0))
 	end
+
 	goingToBase = not goingToBase
 end
 

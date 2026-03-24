@@ -19,7 +19,6 @@ end
 
 local function sendPlayerDataBackToClient(player: Player, dummyName)
 	local dummysData = PlayerDataServerService.get(player, "Dummys")
-	print(dummysData)
 	local dummyData = dummysData[dummyName]
 	if not dummyData then
 		dummyData = {}
