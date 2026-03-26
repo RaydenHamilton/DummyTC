@@ -24,7 +24,7 @@ end
 function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 	local damagedParts = {}
 
-	local function damagedPartCooldown(bodyPart)
+	local function damagedPartCoolDown(bodyPart)
 		table.insert(damagedParts, bodyPart)
 		task.delay(1, function()
 			table.remove(damagedParts, table.find(damagedParts, bodyPart))
@@ -47,7 +47,7 @@ function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 			bodyPart:SetAttribute("Damage", damage + 1)
 		end
 		burn(damagePart, bodyPart)
-		damagedPartCooldown(bodyPart)
+		damagedPartCoolDown(bodyPart)
 	end
 
 	local touched = damagePart.Touched:Connect(SetDamagedPart)
@@ -59,7 +59,7 @@ function DamageDummy.damagePartOnTouch(damagePart: BasePart)
 	end
 end
 
-function DamageDummy.new()
+function DamageDummy.init()
 	local self = setmetatable({}, DamageDummy)
 	self.Stop = Observers.observeTag("Damage", DamageDummy.damagePartOnTouch, { Workspace })
 

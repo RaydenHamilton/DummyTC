@@ -18,8 +18,13 @@ local function makeDummyDataToBuffer(data)
 end
 
 local function sendPlayerDataBackToClient(player: Player, dummyName)
-	local dummysData = PlayerDataServerService.get(player, "Dummys")
-	local dummyData = dummysData[dummyName]
+	local allDummyData
+
+	repeat
+		allDummyData = PlayerDataServerService.get(player, "Dummys")
+	until allDummyData
+
+	local dummyData = allDummyData[dummyName]
 	if not dummyData then
 		dummyData = {}
 	end
@@ -29,14 +34,14 @@ local function sendPlayerDataBackToClient(player: Player, dummyName)
 end
 
 local function setClientPlayerData(player: Player, dummyName, partName)
-	local newdata = PlayerDataServerService.get(player, "Dummys")
+	local newdate = PlayerDataServerService.get(player, "Dummys")
 
-	if not newdata[dummyName] then
-		newdata[dummyName] = {}
+	if not newdate[dummyName] then
+		newdate[dummyName] = {}
 	end
-	newdata[dummyName][partName] = true
+	newdate[dummyName][partName] = true
 
-	PlayerDataServerService.set(player, "Dummys", newdata)
+	PlayerDataServerService.set(player, "Dummys", newdate)
 end
 
 local function buyDummyPart(player, dummyName, partName)

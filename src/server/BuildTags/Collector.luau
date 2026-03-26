@@ -6,17 +6,17 @@ local Observers = require(ReplicatedStorage.Packages.Observers)
 local PlayerDataServerService =
 	require(ReplicatedStorage.Shared.ModuleUniversal.PlayerDataHanlder.SystemPackage.PlayerDataServerService)
 
-local Collecter = {}
-Collecter.__index = Collecter
+local collector = {}
+collector.__index = collector
 
 local function canNotDamage(bodyPart)
 	return not bodyPart:IsA("BasePart") or typeof(bodyPart:GetAttribute("Damage")) ~= typeof(0)
 end
 
-function Collecter.new(collecterPart: BasePart)
-	local player = Players:GetPlayerByUserId(collecterPart:GetAttribute("Owner"))
-	local self = setmetatable({}, Collecter)
-	self.TouchEvent = collecterPart.Touched:Connect(function(otherPart)
+function collector.new(collectorPart: BasePart)
+	local player = Players:GetPlayerByUserId(collectorPart:GetAttribute("Owner"))
+	local self = setmetatable({}, collector)
+	self.TouchEvent = collectorPart.Touched:Connect(function(otherPart)
 		if canNotDamage(otherPart) then
 			return
 		end
@@ -28,8 +28,8 @@ function Collecter.new(collecterPart: BasePart)
 	end
 end
 
-function Collecter.init()
-	Observers.observeTag("Collecter", Collecter.new, { Workspace })
+function collector.init()
+	Observers.observeTag("collector", collector.new, { Workspace })
 end
 
-return Collecter
+return collector

@@ -15,7 +15,7 @@ local function startConveyor(conveyor: BasePart)
 	end
 end
 
-function Conveyor.new()
+function Conveyor.init()
 	local self = setmetatable({}, Conveyor)
 	self.Event = Observers.observeTag("Conveyor", startConveyor, { Workspace })
 	return self

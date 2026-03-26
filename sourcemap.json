@@ -450,34 +450,6 @@
           "className": "Folder",
           "children": [
             {
-              "name": "Collecter",
-              "className": "ModuleScript",
-              "filePaths": [
-                "src/server\\Collecter.luau"
-              ]
-            },
-            {
-              "name": "ConveyorService",
-              "className": "ModuleScript",
-              "filePaths": [
-                "src/server\\ConveyorService.luau"
-              ]
-            },
-            {
-              "name": "DamageDummyService",
-              "className": "ModuleScript",
-              "filePaths": [
-                "src/server\\DamageDummyService.luau"
-              ]
-            },
-            {
-              "name": "DummySpawnerService",
-              "className": "ModuleScript",
-              "filePaths": [
-                "src/server\\DummySpawnerService.luau"
-              ]
-            },
-            {
               "name": "ServerModuleLoader",
               "className": "Script",
               "filePaths": [
@@ -489,6 +461,40 @@
               "className": "ModuleScript",
               "filePaths": [
                 "src/server\\PlotHandler.luau"
+              ]
+            },
+            {
+              "name": "BuildTags",
+              "className": "Folder",
+              "children": [
+                {
+                  "name": "ConveyorService",
+                  "className": "ModuleScript",
+                  "filePaths": [
+                    "src/server\\BuildTags\\ConveyorService.luau"
+                  ]
+                },
+                {
+                  "name": "DamageDummyService",
+                  "className": "ModuleScript",
+                  "filePaths": [
+                    "src/server\\BuildTags\\DamageDummyService.luau"
+                  ]
+                },
+                {
+                  "name": "DummySpawnerService",
+                  "className": "ModuleScript",
+                  "filePaths": [
+                    "src/server\\BuildTags\\DummySpawnerService.luau"
+                  ]
+                },
+                {
+                  "name": "Collector",
+                  "className": "ModuleScript",
+                  "filePaths": [
+                    "src/server\\BuildTags\\Collector.luau"
+                  ]
+                }
               ]
             }
           ]
